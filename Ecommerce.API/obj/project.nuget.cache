@@ -1,10 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "9MpWvuN8A88=",
+  "dgSpecHash": "SeMO3IWxWaM=",
   "success": true,
   "projectFilePath": "C:\\Users\\Christian Chamo\\Desktop\\E-Commerce\\Ecommerce.API\\Ecommerce.API.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\Christian Chamo\\.nuget\\packages\\microsoft.extensions.apidescription.server\\9.0.0\\microsoft.extensions.apidescription.server.9.0.0.nupkg.sha512",
+    "C:\\Users\\Christian Chamo\\.nuget\\packages\\microsoft.extensions.apidescription.server\\8.0.0\\microsoft.extensions.apidescription.server.8.0.0.nupkg.sha512",
     "C:\\Users\\Christian Chamo\\.nuget\\packages\\microsoft.openapi\\2.3.0\\microsoft.openapi.2.3.0.nupkg.sha512",
     "C:\\Users\\Christian Chamo\\.nuget\\packages\\swashbuckle.aspnetcore\\10.0.1\\swashbuckle.aspnetcore.10.0.1.nupkg.sha512",
     "C:\\Users\\Christian Chamo\\.nuget\\packages\\swashbuckle.aspnetcore.swagger\\10.0.1\\swashbuckle.aspnetcore.swagger.10.0.1.nupkg.sha512",

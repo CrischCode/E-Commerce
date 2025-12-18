@@ -1,20 +1,23 @@
 version: "3.9"
+
 services:
   api:
     build: .
+    container_name: ecommerce-api
     ports:
       - "5000:8080"
     depends_on:
       - postgres
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=ecommerce_db;User Id=postgres;Password=admin;
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: Host=postgres;Port=5432;Database=ecommerce_db;Username=postgres;Password=admin
 
   postgres:
     image: postgres:16
+    container_name: ecommerce-postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
+      POSTGRES_USER: cristianchamo
       POSTGRES_PASSWORD: admin
       POSTGRES_DB: ecommerce_db
     ports:
