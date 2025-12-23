@@ -7,6 +7,8 @@ public class AppDbContext : DbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options)
     : base(options) { }
+
+    public DbSet<Persona> Persona => Set<Persona>();
     public DbSet<Producto> Producto => Set<Producto>();
     public DbSet<Cliente> Cliente => Set<Cliente>();
     public DbSet<Empleado> Empleado => Set<Empleado>();
