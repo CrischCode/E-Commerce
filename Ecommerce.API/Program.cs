@@ -23,6 +23,15 @@ builder.Services.AddScoped<IPersonaService, PersonaService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//Los campos null NO se serialicen y Swagger deje de enviarlos automáticamente
+builder.Services.AddControllers()
+    .AddJsonOptions(opt =>
+    {
+        opt.JsonSerializerOptions.DefaultIgnoreCondition =
+            System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
+
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

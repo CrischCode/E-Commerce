@@ -32,14 +32,14 @@ public class Persona
     [MaxLength(20)]
     public string? Telefono { get; set; }
 
-    [Column("fecha_nacimiento")]
-    public DateTime? FechaNacimiento {get; set;}
+    [Column("fecha_nacimiento", TypeName = "date")]
+    public DateOnly? FechaNacimiento {get; set;}
 
      [Column("activo")]
     public bool Activo { get; set; } = true;
 
     [Column("fecha_registro")]
-    public DateTime FechaRegistro { get; set; } = DateTime.UtcNow;
+    public DateOnly? FechaRegistro { get; set; }
 
     //Las relaciones 
      public ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();

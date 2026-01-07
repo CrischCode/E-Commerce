@@ -24,14 +24,33 @@ public class PersonaService : IPersonaService
     public async Task<Persona?> GetByIdAsync(Guid id)
     {
         return await _context.Persona
-        .AsNoTracking()
+        //.AsNoTracking()
         .FirstOrDefaultAsync(p => p.IdPersona == id);
     }
 
     public async Task<Persona> CreateAsync(Persona persona)
     {
+        persona.IdPersona = Guid.NewGuid();
+        persona.FechaRegistro = DateOnly.FromDateTime(DateTime.UtcNow);
         _context.Persona.Add(persona);
         await _context.SaveChangesAsync();
         return persona;
+    }
+
+  public async Task UpdateAsync(Persona persona)
+    {
+       // _context.Persona.Update(persona);
+        await _context.SaveChangesAsync();
+    }
+
+
+    public async Task<bool> DeleteAsync(Guid id)
+    {
+        var persona = await _context.Persona.FindAsync(id);
+        if(persona == null) return false;
+
+        _context.Persona.Remove(persona);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }
