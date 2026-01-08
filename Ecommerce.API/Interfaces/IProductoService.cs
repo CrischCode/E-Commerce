@@ -7,12 +7,12 @@ using Ecommerce.API.Models;
 
 namespace Ecommerce.API.Interfaces
 {
-    public interface IProductos
+    public interface IProductoService
     {
         Task<IEnumerable<Producto>> GetAllAsync();
-        Task<Producto> GetByIdAsync(Guid id);
+        Task<Producto?> GetByIdAsync(int id);
         Task<Producto> CreateAsync(Producto producto);
         Task<Producto> UpdateAsync(Producto producto);
-        Task<Producto> DeleteAsync(Guid id);    
+        Task<bool> DeleteAsync(int id);    
     }
 }

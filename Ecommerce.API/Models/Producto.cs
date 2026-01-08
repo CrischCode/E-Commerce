@@ -8,7 +8,7 @@ public class Producto
     public int IdProducto {get; set;}
     [Required]
     [MaxLength(200)]
-    public string Nombre {get; set;} = null!;
+    public string? Nombre {get; set;}
     [Column(TypeName = "numeric(18,2)")]
     public decimal Precio {get; set;}
     public int Existencias {get; set;}

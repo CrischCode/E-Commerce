@@ -17,6 +17,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 //Aplication Service
 builder.Services.AddScoped<IPersonaService, PersonaService>();
+builder.Services.AddScoped<IProductoService, ProductoService>();
 
 
 // Swagger
