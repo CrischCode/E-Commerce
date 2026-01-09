@@ -10,7 +10,6 @@ namespace Ecommerce.API.DTOs
     public string? SegundoApellido { get; set; }
     public string? Telefono { get; set; }
     public DateOnly? FechaNacimiento { get; set; }
-    public DateOnly? FechaRegistro {get; set;}
     }
 
     public class PersonaUpdateDto

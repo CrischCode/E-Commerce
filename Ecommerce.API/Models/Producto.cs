@@ -2,6 +2,7 @@ namespace Ecommerce.API.Models;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+[Table("producto")]
 public class Producto
 {
     [Key]

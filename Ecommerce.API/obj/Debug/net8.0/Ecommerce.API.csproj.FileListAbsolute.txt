@@ -104,3 +104,4 @@ C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\refin
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.pdb
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.genruntimeconfig.cache
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\ref\Ecommerce.API.dll
+C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\dotenv.net.dll
