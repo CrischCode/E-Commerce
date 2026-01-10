@@ -31,6 +31,7 @@ builder.Services.AddControllers();
 //Aplication Service
 builder.Services.AddScoped<IPersonaService, PersonaService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
+builder.Services.AddScoped<ICategoria, CategoriaService>();
 
 
 // Swagger

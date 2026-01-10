@@ -15,6 +15,7 @@ public class AppDbContext : DbContext
     public DbSet<Salario> Salario => Set<Salario>();
     public DbSet<Rol> Rol => Set<Rol>();
     public DbSet<PersonaRol> PersonaRol => Set<PersonaRol>();
+    public DbSet<Categoria> Categoria => Set<Categoria>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,6 +41,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Empleado>().ToTable("empleado");
         modelBuilder.Entity<Salario>().ToTable("salario");
         modelBuilder.Entity<Rol>().ToTable("rol");
+        modelBuilder.Entity<Categoria>().ToTable("categoria");
 
         base.OnModelCreating(modelBuilder);
     }
