@@ -53,9 +53,12 @@ namespace Ecommerce.API.Service
             _context.Categoria.Remove(categoria);
             await _context.SaveChangesAsync();
             return true;
-
-
-
+        }
+    
+    public async Task<bool> CategoriaExist(int Id_Categoria)
+        {
+            return await _context.Categoria
+            .AnyAsync(c => c.Id_Categoria == Id_Categoria);
         }
         
     }

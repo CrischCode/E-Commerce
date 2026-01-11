@@ -63,8 +63,15 @@ namespace Ecommerce.API.Controllers
                 Existencias = dto.Existencias,
                 IdCategoria = dto.IdCategoria,
             };
-            var create = await _productoService.CreateAsync(producto);
+            try
+            {
+                var create = await _productoService.CreateAsync(producto);
             return CreatedAtAction(nameof(GetByI), new {id = create.IdProducto}, create);
+            }
+            catch (KeyNotFoundException ex)
+            {
+               return BadRequest (new { message = ex.Message}); 
+            }
         }
 
         [HttpPatch("{id:int}")]
@@ -84,13 +91,17 @@ namespace Ecommerce.API.Controllers
             producto.Existencias = dto.Existencias.Value;
 
             if(dto.IdCategoria.HasValue)
-            producto.IdCategoria = dto.IdCategoria.Value;
+            {
+                var categoriaExist = await _productoService.CategoriaExistAsync(dto.IdCategoria.Value);
+                if(!categoriaExist) return BadRequest("La categoria no existe");
+                producto.IdCategoria = dto.IdCategoria.Value;
+            }
 
             await _productoService.UpdateAsync(producto);
             return NoContent();
         }
 
-        [HttpDelete("id:int")]
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
             var delete = await _productoService.DeleteAsync(id);

@@ -13,6 +13,7 @@ namespace Ecommerce.API.Interfaces
         Task<Producto?> GetByIdAsync(int id);
         Task<Producto> CreateAsync(Producto producto);
         Task<Producto> UpdateAsync(Producto producto);
-        Task<bool> DeleteAsync(int id);    
+        Task<bool> DeleteAsync(int id);  
+        Task<bool> CategoriaExistAsync (int Id_Categoria);  
     }
 }

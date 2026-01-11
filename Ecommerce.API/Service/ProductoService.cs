@@ -33,6 +33,10 @@ namespace Ecommerce.API.Service
     
     public async Task<Producto> CreateAsync(Producto producto)
         {
+            var categoriaExist = await _context.Categoria
+            .AnyAsync(c => c.Id_Categoria == producto.IdCategoria);
+            if(!categoriaExist) throw new KeyNotFoundException("La categoria no existe");
+
             _context.Producto.Add(producto);
             await _context.SaveChangesAsync();
             return producto;
@@ -40,6 +44,10 @@ namespace Ecommerce.API.Service
 
     public async Task<Producto> UpdateAsync(Producto producto)
         {
+            var categoriaExist = await _context.Categoria
+            .AnyAsync(c => c.Id_Categoria == producto.IdCategoria);
+            if(!categoriaExist) throw new KeyNotFoundException("La categoria no existe");
+
             await _context.SaveChangesAsync();
             return producto;
         }
@@ -54,6 +62,11 @@ namespace Ecommerce.API.Service
             return true;
         }
 
+    public async Task<bool> CategoriaExistAsync(int categoriaId)
+        {
+            return await _context.Categoria
+                .AnyAsync(c => c.Id_Categoria == categoriaId);
+        }
     }
     
 }

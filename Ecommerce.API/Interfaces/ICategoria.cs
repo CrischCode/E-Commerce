@@ -15,6 +15,7 @@ namespace Ecommerce.API.Interfaces
     //Task<Persona> SaveChangesAsync(Persona persona);
     Task UpdateAsync(Categoria categoria);
     Task<bool> DeleteAsync(int id);
+    Task<bool> CategoriaExist (int Id_Categoria);
         
     }
 }
