@@ -1,0 +1,90 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Ecommerce.API.DTOs;
+using Ecommerce.API.Interfaces;
+using Ecommerce.API.Models;
+using Microsoft.AspNetCore.Mvc;
+
+namespace Ecommerce.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class PedidoController : ControllerBase
+    {
+    private readonly IPedido _pedidoService;
+
+    public PedidoController(IPedido pedidoService)
+    {
+        _pedidoService = pedidoService;
+    } 
+
+    [HttpGet("paged")]
+public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] int pageSize = 10)
+{
+    var (items, total) = await _pedidoService.GetPagedAsync(page, pageSize);
+
+    var result = items.Select(p => new PedidoReadDto
+    {
+        IdPedido = p.IdPedido,
+        IdCliente = p.IdCliente,
+        IdMetodoPago = p.IdMetodoPago,
+        FechaPedido = DateOnly.FromDateTime(p.FechaPedido),
+        Total = p.Total,
+        Estado = p.Estado
+    });
+
+    return Ok(
+        new
+        {
+            page,
+            pageSize,
+            total,
+            totalPages = (int)Math.Ceiling((double)total / pageSize),
+            date = result
+        });
+}
+
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id)
+        {
+            var pedido = await _pedidoService.GetByIdAsync(id);
+            if(pedido == null) return NotFound();
+
+            return Ok(pedido);
+        }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] PedidoCreateDto dto)
+        {
+            try
+            {
+                var pedido = new Pedido
+                {
+                   IdCliente = dto.IdCliente,
+                   IdMetodoPago = dto.IdMetodoPago,
+                   Detalles = dto.Detalles.Select(d => new DetallePedido
+                   {
+                       IdProducto = d.IdProducto,
+                       Cantidad = d.Cantidad
+                   }).ToList()
+                };
+                
+                var created = await _pedidoService.CreateAsync(pedido);
+                return CreatedAtAction(
+                    nameof(GetById),
+                    new {id = created.IdPedido},
+                    new {created.IdPedido}
+                );
+            } 
+            catch (Exception ex)
+            {
+                return BadRequest(new {message = ex.Message});
+            }
+        }
+
+
+    }
+}

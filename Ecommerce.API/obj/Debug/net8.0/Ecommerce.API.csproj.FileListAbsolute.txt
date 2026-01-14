@@ -1,3 +1,11 @@
+C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.csproj.AssemblyReference.cache
+C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\rpswa.dswa.cache.json
+C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.AssemblyInfoInputs.cache
+C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.AssemblyInfo.cs
+C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.csproj.CoreCompileInputs.cache
+C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\appsettings.Development.json
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\appsettings.json
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\Ecommerce.API.staticwebassets.endpoints.json
@@ -6,6 +14,7 @@ C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\Ecomm
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\Ecommerce.API.runtimeconfig.json
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\Ecommerce.API.dll
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\Ecommerce.API.pdb
+C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\dotenv.net.dll
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\Humanizer.dll
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\Microsoft.CodeAnalysis.dll
@@ -82,14 +91,6 @@ C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\ru\Mi
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.resources.dll
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.resources.dll
-C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.csproj.AssemblyReference.cache
-C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\rpswa.dswa.cache.json
-C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.GeneratedMSBuildEditorConfig.editorconfig
-C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.AssemblyInfoInputs.cache
-C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.AssemblyInfo.cs
-C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.csproj.CoreCompileInputs.cache
-C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.MvcApplicationPartsAssemblyInfo.cs
-C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\rjimswa.dswa.cache.json
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json
@@ -104,4 +105,3 @@ C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\refin
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.pdb
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\Ecommerce.API.genruntimeconfig.cache
 C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\obj\Debug\net8.0\ref\Ecommerce.API.dll
-C:\Users\Christian Chamo\Desktop\E-Commerce\Ecommerce.API\bin\Debug\net8.0\dotenv.net.dll

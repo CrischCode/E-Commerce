@@ -16,6 +16,9 @@ public class AppDbContext : DbContext
     public DbSet<Rol> Rol => Set<Rol>();
     public DbSet<PersonaRol> PersonaRol => Set<PersonaRol>();
     public DbSet<Categoria> Categoria => Set<Categoria>();
+    public DbSet<DetallePedido> DetallePedido => Set<DetallePedido>();
+    public DbSet<Pedido> Pedido => Set<Pedido>();
+    public DbSet<MetodoPago> MetodoPago => Set<MetodoPago>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -35,6 +38,19 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<PersonaRol>()
             .HasKey(pr => new { pr.IdPersona, pr.IdRol });
 
+        //Pedido
+         modelBuilder.Entity<Pedido>()
+        .HasMany(p => p.Detalles)
+        .WithOne(d => d.Pedido)
+        .HasForeignKey(d => d.IdPedido)
+        .OnDelete(DeleteBehavior.Cascade);
+
+        //DetallePedido
+        modelBuilder.Entity<DetallePedido>()
+        .HasOne(d => d.Producto)
+        .WithMany()
+        .HasForeignKey(d => d.IdProducto);
+
         // 4. Mapeo de nombres
         modelBuilder.Entity<Producto>().ToTable("producto");
         modelBuilder.Entity<Cliente>().ToTable("cliente");
@@ -42,6 +58,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Salario>().ToTable("salario");
         modelBuilder.Entity<Rol>().ToTable("rol");
         modelBuilder.Entity<Categoria>().ToTable("categoria");
+        modelBuilder.Entity<DetallePedido>().ToTable("detalle_pedido");
+        modelBuilder.Entity<Pedido>().ToTable("pedido");
+        modelBuilder.Entity<MetodoPago>().ToTable("metodo_pago");
 
         base.OnModelCreating(modelBuilder);
     }
