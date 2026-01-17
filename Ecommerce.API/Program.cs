@@ -16,6 +16,10 @@ builder.Services.AddControllers()
     {
         opt.JsonSerializerOptions.DefaultIgnoreCondition =
             System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+
+        //ignora los ciclos de los objetos
+        opt.JsonSerializerOptions.ReferenceHandler = 
+            System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
 //DbContext
@@ -23,13 +27,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
    options.UseNpgsql(connectionString)
 );
 
-builder.Services.AddControllers();
-
 //Controllers
 builder.Services.AddControllers();
 
 //Aplication Service
 builder.Services.AddScoped<IPersonaService, PersonaService>();
+builder.Services.AddScoped<ICliente, ClienteService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<ICategoria, CategoriaService>();
 builder.Services.AddScoped<IPedido, PedidoService>();

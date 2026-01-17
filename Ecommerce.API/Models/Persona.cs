@@ -39,7 +39,7 @@ public class Persona
     public bool Activo { get; set; } = true;
 
     [Column("fecha_registro")]
-    public DateOnly? FechaRegistro { get; set; }
+    public DateTime? FechaRegistro { get; set; } = DateTime.UtcNow;
 
     //Las relaciones 
      public ICollection<Cliente> Clientes { get; set; } = new List<Cliente>();

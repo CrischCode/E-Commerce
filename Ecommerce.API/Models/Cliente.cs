@@ -20,6 +20,7 @@ public class Cliente
     [Column("puntos")]
     public int Puntos {get; set;}
 
+    [ForeignKey("IdPersona")]
     public Persona Persona {get; set;} = null!;
     
 }

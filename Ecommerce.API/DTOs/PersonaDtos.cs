@@ -32,7 +32,7 @@ namespace Ecommerce.API.DTOs
     public string? Telefono { get; set; }
     public DateOnly? FechaNacimiento { get; set; }
     public bool Activo { get; set; }
-    public DateOnly? FechaRegistro { get; set; }
+    public DateTime? FechaRegistro { get; set; }
     }
 
     public class PersonaPatchDto

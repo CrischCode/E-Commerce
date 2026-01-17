@@ -51,7 +51,24 @@ public class AppDbContext : DbContext
         .WithMany()
         .HasForeignKey(d => d.IdProducto);
 
-        // 4. Mapeo de nombres
+        //Cliente
+        modelBuilder.Entity<Cliente>(entity =>
+        {
+            //clave primaria
+            entity.ToTable("cliente");
+            //columnas en Postgres
+            entity.Property(c => c.IdCliente).HasColumnName("id_cliente");
+            entity.Property(c => c.IdPersona).HasColumnName("id_persona");
+            entity.Property(c => c.FechaAlta).HasColumnName("fecha_alta");
+            entity.Property(c => c.Puntos).HasColumnName("puntos");
+            //Relacion a Persona
+            entity.HasOne( c => c.Persona)
+            .WithMany(p => p.Clientes)
+            .HasForeignKey(c => c.IdPersona)
+            .HasPrincipalKey(p => p.IdPersona);
+        });
+
+        // 4. Mapeo de entidades de la BD
         modelBuilder.Entity<Producto>().ToTable("producto");
         modelBuilder.Entity<Cliente>().ToTable("cliente");
         modelBuilder.Entity<Empleado>().ToTable("empleado");
