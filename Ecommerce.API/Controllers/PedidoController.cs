@@ -25,15 +25,6 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
 {
     var (items, total) = await _pedidoService.GetPagedAsync(page, pageSize);
 
-    var result = items.Select(p => new PedidoReadDto
-    {
-        IdPedido = p.IdPedido,
-        IdCliente = p.IdCliente,
-        IdMetodoPago = p.IdMetodoPago,
-        FechaPedido = DateOnly.FromDateTime(p.FechaPedido),
-        Total = p.Total,
-        Estado = p.Estado
-    });
 
     return Ok(
         new
@@ -42,7 +33,7 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
             pageSize,
             total,
             totalPages = (int)Math.Ceiling((double)total / pageSize),
-            date = result
+            date = items
         });
 }
 
@@ -61,6 +52,7 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
         {
             try
             {
+                //Aqui se convierte un DTO a un Modelo
                 var pedido = new Pedido
                 {
                    IdCliente = dto.IdCliente,

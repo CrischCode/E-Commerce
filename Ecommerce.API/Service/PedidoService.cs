@@ -29,23 +29,25 @@ namespace Ecommerce.API.Service
            .ToListAsync();
         } */
     
-    public async Task<(IEnumerable<Pedido> Items, int Total)>GetPagedAsync(int page, int pageSize)
+    public async Task<(IEnumerable<PedidoReadDto> Items, int Total)>GetPagedAsync(int page, int pageSize)
         {
-            if(page <=0) page = 1;
-            if(pageSize <= 0) pageSize = 10;
-
-            var query = _context.Pedido
-            .AsNoTracking()
-            .OrderByDescending(p => p.FechaPedido)
-            .Include(p => p.Detalles)
-            .ThenInclude(d => d.Producto)
-            .OrderByDescending(p => p.FechaPedido);
+            var query = _context.Pedido.AsNoTracking();
 
             var total = await query.CountAsync();
 
             var items = await query
-            .Skip((page - 1)* pageSize)
+            .OrderByDescending(p => p.FechaPedido)
+            .Skip((page -1)* pageSize)
             .Take(pageSize)
+            .Select(p => new PedidoReadDto
+            {
+                IdPedido = p.IdPedido,
+                IdCliente = p.IdCliente,
+                IdMetodoPago = p.IdMetodoPago,
+                FechaPedido = DateOnly.FromDateTime(p.FechaPedido),
+                Total = p.Total,
+                Estado = p.Estado
+            })
             .ToListAsync();
 
             return (items, total);
@@ -61,7 +63,10 @@ namespace Ecommerce.API.Service
 
     public async Task<Pedido> CreateAsync(Pedido pedido)
         {
-            if(!await _context.Cliente.AnyAsync(c => c.IdCliente == pedido.IdCliente))
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
+            {
+                if(!await _context.Cliente.AnyAsync(c => c.IdCliente == pedido.IdCliente))
             throw new Exception("El cliente no existe");
 
             if(pedido.Detalles == null || !pedido.Detalles.Any())
@@ -83,8 +88,17 @@ namespace Ecommerce.API.Service
 
                 detalle.PrecioUnitario = producto.Precio;
                 producto.Existencias -= detalle.Cantidad;
+                //pedido.Total +=(detalle.Cantidad * producto.Precio);
                 pedido.Total += detalle.SubTotal;
             }
+            _context.Pedido.Add(pedido);
+            await _context.SaveChangesAsync();
+            } catch
+            {
+              await transaction.RollbackAsync();
+              throw;  
+            }
+            
 
             _context.Pedido.Add(pedido);
             await _context.SaveChangesAsync();
@@ -93,14 +107,15 @@ namespace Ecommerce.API.Service
 
         public async Task<Pedido> UpdateAsync(Pedido pedido)
         {
-            if(pedido.Estado is "Completado" or "Cancelado")
-            throw new Exception("No se puede actulizar un pedido completado o cancelado");
+            var pedidoDb = await _context.Pedido.FindAsync(pedido.IdPedido);
+            
+            if (pedidoDb == null) throw new Exception("Pedido no encontrado");
+            if (pedidoDb.Estado is "Completado" or "Cancelado")
+                throw new Exception("No se puede modificar un pedido finalizado.");
 
             _context.Pedido.Update(pedido);
             await _context.SaveChangesAsync();
             return pedido;
-
-
         }
 
         public async Task<bool> DeleteAsync(int id)
