@@ -43,12 +43,60 @@ namespace Ecommerce.API.Controllers
             return CreatedAtAction(nameof(GetById), new {id = cliente.IdCliente}, cliente);
         }
     
+    /*
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] ClienteUpdateDto dto)
         {
             var update = await _ClienteService.UpdateAsync(id, dto);
             if(!update) return NotFound();
             return NoContent();
+        } */
+
+    [HttpPost("registro")]
+    public async Task<IActionResult> Registrar([FromBody] RegistroDto dto)
+        {
+            try
+            {
+              await _ClienteService.RegistrarUsuarioCompletoAsync(dto);
+              return Ok(new {message = "Usuario creado correctamente"});  
+            } catch (Exception ex)
+            {
+                return BadRequest(new {error = ex.Message});
+            }
+        }
+    
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] ClienteUpdateDto dto)
+        {
+          try
+            {
+                var clienteActulizado = await _ClienteService.UpdateAsync(id, dto);
+                if(!clienteActulizado)
+                return NotFound(new {message =$"No se encontro al cliente"});
+
+                return Ok(new {message = "Datos actualizados"});
+
+            } catch(Exception ex)
+            {
+                return BadRequest(new {error = ex.Message});
+            }
+        }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+        {
+            try {
+            var delete = await _ClienteService.DeleteAsync(id);
+            if(!delete)
+            {
+                return NotFound(new {message = $"No se encontro al cliente con ID {id}"});
+            }
+            return NoContent();
+            } catch (Exception ex)
+            {
+                return BadRequest(new {error = "No se pudo desactivar al cliente: " + ex.Message});
+            }
+
         }
     
     }

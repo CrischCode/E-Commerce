@@ -14,6 +14,8 @@ namespace Ecommerce.API.Interfaces
         Task<Cliente> CreateAsync(ClienteCreateDto dto);
         Task<bool> UpdateAsync(int id, ClienteUpdateDto dto);
         Task<bool> DeleteAsync(int id); 
+
+        Task<bool> RegistrarUsuarioCompletoAsync(RegistroDto dto);
         
     }
 }

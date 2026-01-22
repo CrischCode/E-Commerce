@@ -65,67 +65,138 @@ namespace Ecommerce.API.Service
                 SegundoApellido = c.Persona.SegundoApellido,
                 Telefono = c.Persona.Telefono,
                 Puntos = c.Puntos
-                
+
             })
             .FirstOrDefaultAsync();
         }
 
         public async Task<Cliente> CreateAsync(ClienteCreateDto dto)
-{
-    using var tx = await _context.Database.BeginTransactionAsync();
-    try {
-        var persona = await _context.Persona.FindAsync(dto.IdPersona);
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
 
-        if (persona == null) {
-            persona = new Persona {
-                IdPersona = dto.IdPersona,
+
+            var personaExist = await _context.Persona.AnyAsync(p => p.IdPersona == dto.IdPersona);
+            if (personaExist)
+            {
+                throw new Exception("La persona no existe");
+            }
+            var clienteExist = await _context.Cliente.AnyAsync(c => c.IdPersona == dto.IdPersona);
+            if (clienteExist)
+            {
+                throw new Exception("El cliente ya existe");
+            }
+            var persona = await _context.Persona.FindAsync(dto.IdPersona);
+
+            if (persona == null)
+            {
+                persona = new Persona
+                {
+                    IdPersona = dto.IdPersona,
+                };
+                _context.Persona.Add(persona);
+                await _context.SaveChangesAsync();
+            }
+
+            var cliente = new Cliente
+            {
+                IdPersona = persona.IdPersona,
+                Puntos = 0,
+                FechaAlta = DateTime.UtcNow
             };
-            _context.Persona.Add(persona);
+
+            _context.Cliente.Add(cliente);
             await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+
+            return cliente;
         }
-
-        var cliente = new Cliente {
-            IdPersona = persona.IdPersona,
-            Puntos = 0,
-            FechaAlta = DateTime.UtcNow
-        };
-
-        _context.Cliente.Add(cliente);
-        await _context.SaveChangesAsync();
-        await tx.CommitAsync();
-
-        return cliente;
-    } catch {
-        await tx.RollbackAsync();
-        throw;
-    }
-}
 
         public async Task<bool> UpdateAsync(int id, ClienteUpdateDto dto)
         {
             var cliente = await _context.Cliente
             .Include(c => c.Persona)
-            .FirstOrDefaultAsync(c => c.IdCliente == id); 
+            .FirstOrDefaultAsync(c => c.IdCliente == id);
 
-            if(cliente == null) return false;
+            if (cliente == null) return false;
 
-            cliente.Persona.PrimerNombre = dto.PrimerNombre;
-            cliente.Persona.SegundoNombre = dto.SegundoNombre;
-            cliente.Persona.PrimerApellido = dto.PrimerApellido;
-            cliente.Persona.SegundoApellido = dto.SegundoApellido;
-            cliente.Persona.Telefono = dto.Telefono;
-            cliente.Persona.FechaNacimiento = dto.FechaNacimiento;
+            if (!string.IsNullOrWhiteSpace(dto.PrimerNombre))
+                cliente.Persona.PrimerNombre = dto.PrimerNombre;
+
+            if (!string.IsNullOrWhiteSpace(dto.SegundoNombre))
+                cliente.Persona.SegundoNombre = dto.SegundoNombre;
+
+            if (!string.IsNullOrWhiteSpace(dto.PrimerApellido))
+                cliente.Persona.PrimerApellido = dto.PrimerApellido;
+
+            if (!string.IsNullOrWhiteSpace(dto.SegundoApellido))
+                cliente.Persona.SegundoApellido = dto.SegundoApellido;
+
+            if (!string.IsNullOrWhiteSpace(dto.Telefono))
+                cliente.Persona.Telefono = dto.Telefono;
+
+            if (dto.FechaNacimiento.HasValue)
+                cliente.Persona.FechaNacimiento = dto.FechaNacimiento;
 
             await _context.SaveChangesAsync();
             return true;
         }
-    public async Task<bool> DeleteAsync(int id)
-        {
-            var cliente = await _context.Cliente.FindAsync(id);
-            if(cliente == null) return false;
 
-            _context.Cliente.Remove(cliente);
-            return await _context.SaveChangesAsync() > 0;
+        public async Task<bool> RegistrarUsuarioCompletoAsync(RegistroDto dto)
+        {
+            using var tx = await _context.Database.BeginTransactionAsync();
+            var existe = await _context.Persona.AnyAsync(p => p.IdPersona == dto.IdPersona);
+            if (existe)
+            {
+                throw new Exception("Este usuario ya existe");
+            }
+            try
+            {
+
+                var nuevaPersona = new Persona
+                {
+                    IdPersona = dto.IdPersona,
+                    PrimerNombre = dto.PrimerNombre,
+                    SegundoNombre = dto.SegundoNombre,
+                    PrimerApellido = dto.PrimerApellido,
+                    SegundoApellido = dto.PrimerApellido,
+                    Telefono = dto.Telefono,
+                    FechaNacimiento = dto.FechaNacimiento,
+                    Activo = true,
+                    FechaRegistro = DateTime.UtcNow
+                };
+                _context.Persona.Add(nuevaPersona);
+
+                var NuevoCliente = new Cliente
+                {
+                    IdPersona = dto.IdPersona,
+                    Puntos = 0,
+                    FechaAlta = DateTime.UtcNow
+                };
+                _context.Cliente.Add(NuevoCliente);
+
+                await _context.SaveChangesAsync();
+                await tx.CommitAsync();
+                return true;
+
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                throw new Exception("Error al registrar:" + ex.Message);
+            }
+        }
+
+          public async Task<bool> DeleteAsync(int id)
+        {
+            var cliente = await _context.Cliente
+            .Include(c => c.Persona)
+            .FirstOrDefaultAsync(c => c.IdCliente == id);
+
+            if(cliente == null) return false;
+            cliente.Persona.Activo = false; //Aqui se desactiva la persona en vez de borrarla
+
+            await _context.SaveChangesAsync();
+            return true;
         }
     }
 }

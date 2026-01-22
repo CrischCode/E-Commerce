@@ -36,6 +36,18 @@ namespace Ecommerce.API.DTOs
 
 public class ClienteUpdateDto
 {
+    public string? PrimerNombre { get; set; } = null!;
+    public string? SegundoNombre { get; set; }
+    public string? PrimerApellido { get; set; } = null!;
+    public string? SegundoApellido { get; set; }
+
+    public string? Telefono { get; set; }
+    public DateOnly? FechaNacimiento { get; set; }
+}
+
+public class RegistroDto
+{
+    public Guid IdPersona {get; set;}
     public string PrimerNombre { get; set; } = null!;
     public string? SegundoNombre { get; set; }
     public string PrimerApellido { get; set; } = null!;
