@@ -44,7 +44,26 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
             var pedido = await _pedidoService.GetByIdAsync(id);
             if(pedido == null) return NotFound();
 
-            return Ok(pedido);
+            //Mapeo DTO detalles con nombres
+            var result = new PedidoReadDto
+            {
+               IdPedido = pedido.IdPedido,
+               FechaPedido = DateOnly.FromDateTime(pedido.FechaPedido),
+               Total = pedido.Total,
+               Estado = pedido.Estado,
+               //Lista de los detalles mapeada
+               Detalles = pedido.Detalles.Select(d => new DetallePedidoReadDto
+               {
+                   IdDetallePedido = d.IdDetallePedido,
+                   IdProducto = d.IdProducto,
+                   NombreProducto = d.Producto?.Nombre ?? "Producto no encontrado",
+                   Cantidad = d.Cantidad,
+                   PrecioUnitario = d.PrecioUnitario
+
+               }) .ToList()
+            };
+
+            return Ok(result);
         }
 
     [HttpPost]
@@ -74,6 +93,37 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
             catch (Exception ex)
             {
                 return BadRequest(new {message = ex.Message});
+            }
+        }
+
+        [HttpPatch("{id:int}")]
+        public async Task<IActionResult> Update(int id, [FromBody] PedidoUpdateDto dto) 
+        {
+           try
+            {
+              var update = await _pedidoService.UpdateAsync(id, dto);
+              if(!update) return NotFound(new { message = "Pedido no encontrado"});
+
+              return Ok(new {message = "Pedido actualizado"});  
+            } catch (Exception ex)
+            {
+                return BadRequest(new {error = ex.Message});
+            }
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                var delete = await _pedidoService.DeleteAsync(id);
+                if(!delete) return NotFound(new {message = "Pedido no encontrado"});
+
+                return Ok(new {message = "Pedido eliminado"});
+
+            } catch(Exception ex)
+            {
+                return BadRequest(new {error = ex.Message});
             }
         }
 

@@ -12,7 +12,7 @@ namespace Ecommerce.API.Interfaces
         Task<(IEnumerable<PedidoReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize);
         Task<Pedido?> GetByIdAsync(int id);
         Task<Pedido> CreateAsync(Pedido pedido);
-        Task<Pedido> UpdateAsync(Pedido pedido);
+        Task<bool> UpdateAsync(int id, PedidoUpdateDto dto);
         Task<bool> DeleteAsync(int id);
     }
 }

@@ -12,24 +12,24 @@ namespace Ecommerce.API.Service
 {
     public class PedidoService : IPedido
     {
-    private readonly AppDbContext _context;
-    
-    public PedidoService(AppDbContext context)
-    {
-        _context = context;
-    }
+        private readonly AppDbContext _context;
 
-/*
-    public async  Task<IEnumerable<Pedido>> GetAllAsync()
+        public PedidoService(AppDbContext context)
         {
-            return await _context.Pedido
-           .AsNoTracking()
-           .Include(p => p.Detalles)
-           .ThenInclude(d => d.Producto)
-           .ToListAsync();
-        } */
-    
-    public async Task<(IEnumerable<PedidoReadDto> Items, int Total)>GetPagedAsync(int page, int pageSize)
+            _context = context;
+        }
+
+        /*
+            public async  Task<IEnumerable<Pedido>> GetAllAsync()
+                {
+                    return await _context.Pedido
+                   .AsNoTracking()
+                   .Include(p => p.Detalles)
+                   .ThenInclude(d => d.Producto)
+                   .ToListAsync();
+                } */
+
+        public async Task<(IEnumerable<PedidoReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize)
         {
             var query = _context.Pedido.AsNoTracking();
 
@@ -37,7 +37,7 @@ namespace Ecommerce.API.Service
 
             var items = await query
             .OrderByDescending(p => p.FechaPedido)
-            .Skip((page -1)* pageSize)
+            .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .Select(p => new PedidoReadDto
             {
@@ -53,7 +53,7 @@ namespace Ecommerce.API.Service
             return (items, total);
         }
 
-    public async Task<Pedido?> GetByIdAsync(int id)
+        public async Task<Pedido?> GetByIdAsync(int id)
         {
             return await _context.Pedido
             .Include(p => p.Detalles)
@@ -61,75 +61,99 @@ namespace Ecommerce.API.Service
             .FirstOrDefaultAsync(p => p.IdPedido == id);
         }
 
-    public async Task<Pedido> CreateAsync(Pedido pedido)
+        public async Task<Pedido> CreateAsync(Pedido pedido)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                if(!await _context.Cliente.AnyAsync(c => c.IdCliente == pedido.IdCliente))
-            throw new Exception("El cliente no existe");
+                if (!await _context.Cliente.AnyAsync(c => c.IdCliente == pedido.IdCliente))
+                    throw new Exception("El cliente no existe");
 
-            if(pedido.Detalles == null || !pedido.Detalles.Any())
-            throw new Exception("El pedido debe de contener almenos un detalle");
+                if (pedido.Detalles == null || !pedido.Detalles.Any())
+                    throw new Exception("El pedido debe de contener almenos un detalle");
 
-            pedido.Estado = "Pendiente";
-            pedido.Total = 0;
+                pedido.Estado = "Pendiente";
+                pedido.Total = 0;
 
-            foreach(var detalle in pedido.Detalles)
-            {
-                var producto = await _context.Producto
-                .FirstOrDefaultAsync(p => p.IdProducto == detalle.IdProducto);
+                foreach (var detalle in pedido.Detalles)
+                {
+                    var producto = await _context.Producto
+                    .FirstOrDefaultAsync(p => p.IdProducto == detalle.IdProducto);
 
-                if(producto == null)
-                throw new Exception($"Producto {detalle.IdProducto} no existe");
+                    if (producto == null)
+                        throw new Exception($"Producto {detalle.IdProducto} no existe");
 
-                if(producto.Existencias < detalle.Cantidad)
-                throw new Exception($"Stock incuficiente para {producto.Nombre}");
+                    if (producto.Existencias < detalle.Cantidad)
+                        throw new Exception($"Stock incuficiente para {producto.Nombre}");
 
-                detalle.PrecioUnitario = producto.Precio;
-                producto.Existencias -= detalle.Cantidad;
-                //pedido.Total +=(detalle.Cantidad * producto.Precio);
-                pedido.Total += detalle.SubTotal;
+                    detalle.PrecioUnitario = producto.Precio; // se congela el precio al momneto de la compra en la tabla detalle pedido
+                    producto.Existencias -= detalle.Cantidad; // se resta el stock en la BD
+                    decimal SubTotal = detalle.Cantidad * producto.Precio; //calculo por item
+                    pedido.Total += detalle.SubTotal; //sumamos cada producto
+                }
+
+                //Puntos del cliente
+                var cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.IdCliente == pedido.IdCliente);
+                if(cliente != null)
+                {
+                    cliente.Puntos += (int)(pedido.Total / 10); // un punto por cada 10 unidades monetarias
+                }
+
+                _context.Pedido.Add(pedido);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return pedido;
             }
-            _context.Pedido.Add(pedido);
-            await _context.SaveChangesAsync();
-            } catch
+            catch
             {
-              await transaction.RollbackAsync();
-              throw;  
+                await transaction.RollbackAsync();
+                throw;
             }
-            
-
-            _context.Pedido.Add(pedido);
-            await _context.SaveChangesAsync();
-            return pedido;
         }
 
-        public async Task<Pedido> UpdateAsync(Pedido pedido)
+        public async Task<bool> UpdateAsync(int id, PedidoUpdateDto dto)
         {
-            var pedidoDb = await _context.Pedido.FindAsync(pedido.IdPedido);
-            
-            if (pedidoDb == null) throw new Exception("Pedido no encontrado");
-            if (pedidoDb.Estado is "Completado" or "Cancelado")
-                throw new Exception("No se puede modificar un pedido finalizado.");
+            var pedidoUpdate = await _context.Pedido
+            .Include(p => p.Detalles)
+            .FirstOrDefaultAsync(p => p.IdPedido == id);
 
-            _context.Pedido.Update(pedido);
-            await _context.SaveChangesAsync();
-            return pedido;
+            if (pedidoUpdate == null) return false;
+
+            //por si el pedido cambia a cancelado devolvemos el stock
+            if (!string.IsNullOrWhiteSpace(dto.Estado) &&
+            dto.Estado == "Cancelado" && pedidoUpdate.Estado != "Cancelado")
+            {
+                foreach (var detalle in pedidoUpdate.Detalles)
+                {
+                    var producto = await _context.Producto.FindAsync(detalle.IdProducto);
+                    if (producto != null) producto.Existencias += detalle.Cantidad; //si el pedido se cancela le devolvemos los items a la BD
+
+                }
+            }
+
+            if (!string.IsNullOrWhiteSpace(dto.Estado))
+                pedidoUpdate.Estado = dto.Estado;
+
+            if (dto.IdMetodoPago.HasValue)
+                pedidoUpdate.IdMetodoPago = dto.IdMetodoPago.Value;
+
+            return await _context.SaveChangesAsync() > 0;
+
         }
 
         public async Task<bool> DeleteAsync(int id)
         {
-           var pedido = await _context.Pedido.FindAsync(id);
-           if(pedido == null) return false;
+            var pedido = await _context.Pedido.FindAsync(id);
+            if (pedido == null) return false;
 
-           if(pedido.Estado != "Pendiente")
-           throw new IndexOutOfRangeException("Solo se puede eliminar pedidos pendientes");
+            if (pedido.Estado != "Pendiente")
+                throw new IndexOutOfRangeException("Solo se puede eliminar pedidos pendientes");
 
-           _context.Pedido.Remove(pedido);
-           await _context.SaveChangesAsync();
-           return true;
+            _context.Pedido.Remove(pedido);
+            await _context.SaveChangesAsync();
+            return true;
         }
-        
+
     }
 }
