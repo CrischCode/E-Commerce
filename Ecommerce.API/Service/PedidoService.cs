@@ -98,10 +98,15 @@ namespace Ecommerce.API.Service
                         throw new Exception($"Producto {detalle.IdProducto} no existe");
 
                     if (producto.Existencias < detalle.Cantidad)
-                        throw new Exception($"Stock incuficiente para {producto.Nombre}");
+                        throw new Exception($"Stock incuficiente para {producto.Nombre}. Disponibles: {producto.Existencias}");
+                    
+                    //Verifica si no bajo de 0 por otra transaccion
+                    producto.Existencias -= detalle.Cantidad;
+                    if(producto.Existencias < 0)
+                    throw new Exception($"Error. El stock de {producto.Nombre} se agoto durante el proceso de compra.");
 
                     detalle.PrecioUnitario = producto.Precio; //se congela el precio al momneto de la compra en la tabla detalle pedido
-                    producto.Existencias -= detalle.Cantidad; //se resta el stock en la BD
+                   // producto.Existencias -= detalle.Cantidad; //se resta el stock en la BD
                                                               // decimal SubTotal = detalle.Cantidad * producto.Precio; //calculo por item
                     pedido.Total += (detalle.Cantidad * producto.Precio); //sumamos cada producto
 
