@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,6 +25,9 @@ namespace Ecommerce.API.DTOs
     {
       public int IdCliente {get; set;}
       public int IdMetodoPago {get; set;}
+
+      [Required]
+      [MinLength(1, ErrorMessage = "El pedido debe de tener almenos un producto.")]
      public List<DetallePedidoCreateDto> Detalles {get; set;} = null!;
     }
 

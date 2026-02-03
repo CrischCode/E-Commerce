@@ -178,6 +178,24 @@ namespace Ecommerce.API.Service
 
             if (pedidoUpdate == null) return false;
 
+            //validacion para no modificar pedidos ya entregados o cancelados
+            var estadoActual = new[] {"Completado", "Cancelado"};
+
+            if(estadoActual.Contains(pedidoUpdate.Estado))
+            {
+                throw new Exception($"El pedido # {id} ya esta cerrado ({pedidoUpdate.Estado})");
+            }
+
+            //si ya esta en proceso tampoco se puede cambair
+            if(pedidoUpdate.Estado == "En Proceso")
+            {
+                if(dto.IdMetodoPago.HasValue)
+                throw new Exception("No se puede cambair el metodo de pago en un pedido en Proceso");
+
+                if(dto.Estado == "Cancelado")
+                throw new Exception("No se puede cancelar un pedido que ya esta en proceso.");
+            }
+
             //por si el pedido cambia a cancelado devolvemos el stock
             if (!string.IsNullOrWhiteSpace(dto.Estado) &&
             dto.Estado == "Cancelado" && pedidoUpdate.Estado != "Cancelado")
@@ -187,6 +205,7 @@ namespace Ecommerce.API.Service
                     var producto = await _context.Producto.FindAsync(detalle.IdProducto);
                     if (producto != null) producto.Existencias += detalle.Cantidad; //si el pedido se cancela le devolvemos los items a la BD
 
+                    //se devuelve el producto al stock
                     var movimientoEntrada = new MovimientoInventario
                     {
                         IdProducto = detalle.IdProducto,
