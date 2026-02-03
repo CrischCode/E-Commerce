@@ -29,7 +29,7 @@ namespace Ecommerce.API.Service
                    .ToListAsync();
                 } */
 
-        public async Task<(IEnumerable<PedidoReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize)
+        public async Task<(IEnumerable<PedidoReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize, string? estado, int? idCliente)
         {
             var query = _context.Pedido.AsNoTracking();
             /*
@@ -37,6 +37,17 @@ namespace Ecommerce.API.Service
               .ThenInclude(c => c!.Persona)
             .Include(p => p.MetodoPago)
             ; */
+
+            //filtros de estado
+            if(!string.IsNullOrEmpty(estado))
+            {
+                query = query.Where(p => p.Estado == estado);
+            }
+
+            if(idCliente.HasValue)
+            {
+                query = query.Where(p => p.IdCliente == idCliente.Value);
+            }
 
             var total = await query.CountAsync();
 
