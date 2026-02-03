@@ -20,6 +20,8 @@ public class AppDbContext : DbContext
     public DbSet<Pedido> Pedido => Set<Pedido>();
     public DbSet<MetodoPago> MetodoPago => Set<MetodoPago>();
 
+    public DbSet<MovimientoInventario> MovimientoInventario => Set<MovimientoInventario>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         // 1. Forzar que todo use el esquema 'public' (Evita errores en Supabase/Postgres)
@@ -44,6 +46,28 @@ public class AppDbContext : DbContext
         .WithOne(d => d.Pedido)
         .HasForeignKey(d => d.IdPedido)
         .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Pedido>(entity =>
+    {
+        entity.ToTable("pedido");
+        entity.HasKey(p => p.IdPedido);
+
+        //Relación con Cliente
+        entity.HasOne(p => p.Cliente)
+            .WithMany() 
+            .HasForeignKey(p => p.IdCliente);
+
+        //Relación con MetodoPago
+        entity.HasOne(p => p.MetodoPago)
+            .WithMany()
+            .HasForeignKey(p => p.IdMetodoPago);
+
+        //Relación con Detalles 
+        entity.HasMany(p => p.Detalles)
+            .WithOne(d => d.Pedido)
+            .HasForeignKey(d => d.IdPedido)
+            .OnDelete(DeleteBehavior.Cascade);
+    });
 
         //DetallePedido
         modelBuilder.Entity<DetallePedido>()
@@ -78,6 +102,7 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<DetallePedido>().ToTable("detalle_pedido");
         modelBuilder.Entity<Pedido>().ToTable("pedido");
         modelBuilder.Entity<MetodoPago>().ToTable("metodo_pago");
+         modelBuilder.Entity<MovimientoInventario>().ToTable("movimiento_inventario");
 
         base.OnModelCreating(modelBuilder);
     }

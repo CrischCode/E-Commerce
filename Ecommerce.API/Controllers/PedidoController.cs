@@ -48,6 +48,11 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
             var result = new PedidoReadDto
             {
                IdPedido = pedido.IdPedido,
+               IdCliente = pedido.IdCliente,
+               Cliente = pedido.Cliente?.Persona != null
+               ? $"{pedido.Cliente.Persona.PrimerNombre} {pedido.Cliente.Persona.PrimerApellido}" : "Cliente no encontrado",
+               IdMetodoPago = pedido.IdMetodoPago,
+               MetodoPago = pedido.MetodoPago?.Nombre ?? "No especificado",
                FechaPedido = DateOnly.FromDateTime(pedido.FechaPedido),
                Total = pedido.Total,
                Estado = pedido.Estado,
@@ -58,8 +63,8 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
                    IdProducto = d.IdProducto,
                    NombreProducto = d.Producto?.Nombre ?? "Producto no encontrado",
                    Cantidad = d.Cantidad,
-                   PrecioUnitario = d.PrecioUnitario
-
+                   PrecioUnitario = d.PrecioUnitario,
+                   SubTotal = d.SubTotal
                }) .ToList()
             };
 
@@ -84,11 +89,33 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
                 };
                 
                 var created = await _pedidoService.CreateAsync(pedido);
-                return CreatedAtAction(
-                    nameof(GetById),
-                    new {id = created.IdPedido},
-                    new {created.IdPedido}
-                );
+
+                if (created == null) 
+                    return BadRequest(new { message = "No se pudo crear el pedido" });
+                
+                var result = new PedidoReadDto
+                {
+                    IdPedido = created.IdPedido,
+                    IdCliente = created.IdCliente,
+                    Cliente = created.Cliente?.Persona != null
+                    ? $"{created.Cliente.Persona.PrimerNombre} {created.Cliente.Persona.PrimerApellido}" : "Cliente no encontrado",
+                    IdMetodoPago = created.IdMetodoPago,
+                    MetodoPago = created.MetodoPago?.Nombre ?? "No especificado",
+                    FechaPedido = DateOnly.FromDateTime(created.FechaPedido),
+                    Total = created.Total,
+                    Estado = created.Estado,
+                    Detalles = created.Detalles.Select(d => new DetallePedidoReadDto
+                    {
+                        IdDetallePedido = d.IdDetallePedido,
+                        IdProducto = d.IdProducto,
+                        NombreProducto = d.Producto?.Nombre ?? "Producto",
+                        Cantidad = d.Cantidad,
+                        PrecioUnitario = d.PrecioUnitario,
+                        SubTotal = d.SubTotal
+                    }).ToList()
+                };
+
+                return CreatedAtAction(nameof(GetById), new {id = result.IdPedido}, result);
             } 
             catch (Exception ex)
             {

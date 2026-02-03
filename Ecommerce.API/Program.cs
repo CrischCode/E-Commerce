@@ -4,6 +4,7 @@ using Ecommerce.API.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using dotenv.net;
 
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 //.Env
 DotEnv.Load();
 var connectionString = Environment.GetEnvironmentVariable("DB_CONNECTION_STRING");
@@ -36,6 +37,7 @@ builder.Services.AddScoped<ICliente, ClienteService>();
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<ICategoria, CategoriaService>();
 builder.Services.AddScoped<IPedido, PedidoService>();
+builder.Services.AddScoped<IMovimientoInventario, MovimientoInventarioService>();
 
 
 // Swagger

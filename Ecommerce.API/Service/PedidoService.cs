@@ -32,6 +32,11 @@ namespace Ecommerce.API.Service
         public async Task<(IEnumerable<PedidoReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize)
         {
             var query = _context.Pedido.AsNoTracking();
+            /*
+            .Include(p => p.Cliente)
+              .ThenInclude(c => c!.Persona)
+            .Include(p => p.MetodoPago)
+            ; */
 
             var total = await query.CountAsync();
 
@@ -43,7 +48,10 @@ namespace Ecommerce.API.Service
             {
                 IdPedido = p.IdPedido,
                 IdCliente = p.IdCliente,
+                Cliente = p.Cliente != null && p.Cliente.Persona != null
+                ? p.Cliente.Persona.PrimerNombre + " " + p.Cliente.Persona.PrimerApellido : "Sin nombre",
                 IdMetodoPago = p.IdMetodoPago,
+                MetodoPago = p.MetodoPago != null ? p.MetodoPago.Nombre : "No especificadp",
                 FechaPedido = DateOnly.FromDateTime(p.FechaPedido),
                 Total = p.Total,
                 Estado = p.Estado
@@ -56,12 +64,16 @@ namespace Ecommerce.API.Service
         public async Task<Pedido?> GetByIdAsync(int id)
         {
             return await _context.Pedido
+            .AsNoTracking()
+            .Include(p => p.Cliente)
+              .ThenInclude(c => c!.Persona)
+            .Include(p => p.MetodoPago)
             .Include(p => p.Detalles)
-            .ThenInclude(d => d.Producto)
+              .ThenInclude(d => d.Producto)
             .FirstOrDefaultAsync(p => p.IdPedido == id);
         }
 
-        public async Task<Pedido> CreateAsync(Pedido pedido)
+        public async Task<Pedido?> CreateAsync(Pedido pedido)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
@@ -73,8 +85,10 @@ namespace Ecommerce.API.Service
                     throw new Exception("El pedido debe de contener almenos un detalle");
 
                 pedido.Estado = "Pendiente";
+                pedido.FechaPedido = DateTime.Now;
                 pedido.Total = 0;
 
+                //tenemos que validar el stock y calcular precisos
                 foreach (var detalle in pedido.Detalles)
                 {
                     var producto = await _context.Producto
@@ -86,24 +100,52 @@ namespace Ecommerce.API.Service
                     if (producto.Existencias < detalle.Cantidad)
                         throw new Exception($"Stock incuficiente para {producto.Nombre}");
 
-                    detalle.PrecioUnitario = producto.Precio; // se congela el precio al momneto de la compra en la tabla detalle pedido
-                    producto.Existencias -= detalle.Cantidad; // se resta el stock en la BD
-                    decimal SubTotal = detalle.Cantidad * producto.Precio; //calculo por item
-                    pedido.Total += detalle.SubTotal; //sumamos cada producto
+                    detalle.PrecioUnitario = producto.Precio; //se congela el precio al momneto de la compra en la tabla detalle pedido
+                    producto.Existencias -= detalle.Cantidad; //se resta el stock en la BD
+                                                              // decimal SubTotal = detalle.Cantidad * producto.Precio; //calculo por item
+                    pedido.Total += (detalle.Cantidad * producto.Precio); //sumamos cada producto
+
                 }
 
                 //Puntos del cliente
                 var cliente = await _context.Cliente.FirstOrDefaultAsync(c => c.IdCliente == pedido.IdCliente);
-                if(cliente != null)
+                if (cliente != null)
                 {
                     cliente.Puntos += (int)(pedido.Total / 10); // un punto por cada 10 unidades monetarias
                 }
 
                 _context.Pedido.Add(pedido);
                 await _context.SaveChangesAsync();
+
+                foreach (var detalle in pedido.Detalles)
+                {
+                    //Registro de movimientos de inventario tipo Salida
+                    var movimientoSalida = new MovimientoInventario
+                    {
+                        IdProducto = detalle.IdProducto,
+                        TipoMovimiento = "Salida",
+                        Cantidad = detalle.Cantidad,
+                        Motivo = $"Venta - Pedido #{pedido.IdPedido}",
+                        FechaMovimiento = DateTime.Now
+
+                    };
+
+                    _context.MovimientoInventario.Add(movimientoSalida);
+                }
+
+                //_context.Pedido.Add(pedido);
+                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return pedido;
+                return await _context.Pedido
+                .AsNoTracking()
+                .Include(p => p.Cliente)
+                    .ThenInclude(c => c!.Persona)
+                .Include(p => p.MetodoPago)
+                .Include(p => p.Detalles)
+                .ThenInclude(d => d.Producto)
+                .FirstOrDefaultAsync(p => p.IdPedido == pedido.IdPedido);
+
             }
             catch
             {
@@ -129,9 +171,22 @@ namespace Ecommerce.API.Service
                     var producto = await _context.Producto.FindAsync(detalle.IdProducto);
                     if (producto != null) producto.Existencias += detalle.Cantidad; //si el pedido se cancela le devolvemos los items a la BD
 
+                    var movimientoEntrada = new MovimientoInventario
+                    {
+                        IdProducto = detalle.IdProducto,
+                        TipoMovimiento = "Entrada",
+                        Cantidad = detalle.Cantidad,
+                        Motivo = $"Cancelacion de pedido#{pedidoUpdate.IdPedido}",
+                        FechaMovimiento = DateTime.Now
+                    };
+
+                    _context.MovimientoInventario.Add(movimientoEntrada);
+
                 }
+
             }
 
+            //aqui actualizo los campos permitidos
             if (!string.IsNullOrWhiteSpace(dto.Estado))
                 pedidoUpdate.Estado = dto.Estado;
 

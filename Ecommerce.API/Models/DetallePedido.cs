@@ -25,8 +25,8 @@ namespace Ecommerce.API.Models
         [Column("precio_unitario")]
         public decimal PrecioUnitario {get; set;}
 
+              [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         [Column("sub_total")]
-        [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public decimal SubTotal {get; private set;}
 
         //para navegacion

@@ -9,10 +9,13 @@ namespace Ecommerce.API.DTOs
     {
       public int IdPedido {get; set;}
       public int IdCliente {get; set;}
+      public string Cliente {get; set;} = string.Empty;
       public int IdMetodoPago {get; set;}
+      public string? MetodoPago {get; set;} = string.Empty;
       public DateOnly FechaPedido{get; set;}
       public decimal Total {get; set;}
-      public string? Estado {get; set;} 
+      public string? Estado {get; set;}
+      //public decimal? SubTotal {get; set;} 
 
       public List<DetallePedidoReadDto> Detalles { get; set; } = new();
     }

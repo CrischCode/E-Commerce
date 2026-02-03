@@ -12,7 +12,7 @@ namespace Ecommerce.API.Models
       [Key]
       [Column("id_pedido")]
       public int IdPedido {get; set;}
-
+      
       [Column("id_cliente")]
       public int IdCliente {get; set;}
 
@@ -27,6 +27,12 @@ namespace Ecommerce.API.Models
 
       [Column("estado")]
       public string? Estado {get; set;} = "Pendiente";
+
+       [ForeignKey("IdCliente")]
+       public virtual Cliente? Cliente {get; set;}
+
+        [ForeignKey("IdMetodoPago")]
+        public virtual MetodoPago? MetodoPago {get; set;}
 
       public ICollection<DetallePedido> Detalles { get; set; } = new List<DetallePedido>();
 
