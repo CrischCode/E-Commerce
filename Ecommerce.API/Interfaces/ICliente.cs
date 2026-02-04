@@ -9,7 +9,7 @@ namespace Ecommerce.API.Interfaces
 {
     public interface ICliente
     {
-        Task<(IEnumerable<ClienteReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize); 
+        Task<(IEnumerable<ClienteReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize, int? idCliente, string? busqueda); 
         Task<ClienteReadDto?> GetByIdAsync(int id);
         Task<Cliente> CreateAsync(ClienteCreateDto dto);
         Task<bool> UpdateAsync(int id, ClienteUpdateDto dto);

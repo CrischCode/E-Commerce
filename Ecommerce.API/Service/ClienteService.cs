@@ -20,7 +20,7 @@ namespace Ecommerce.API.Service
             _context = context;
         }
 
-        public async Task<(IEnumerable<ClienteReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize)
+        public async Task<(IEnumerable<ClienteReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize, int? idCliente, string? busqueda)
         {
             var query =
                 from c in _context.Cliente
@@ -39,6 +39,20 @@ namespace Ecommerce.API.Service
                     Puntos = c.Puntos,
                     FechaAlta = c.FechaAlta ?? DateTime.UtcNow
                 };
+             //filtro por IdCliente
+            if(idCliente.HasValue)
+        {
+           query = query.Where(p => p.IdCliente == idCliente.Value); 
+        }
+
+        //filtro por nombres y apellidos
+        if(!string.IsNullOrWhiteSpace(busqueda))
+        {
+            string term = busqueda.ToLower().Trim();
+            query = query.Where(c => c.PrimerNombre!.ToLower().Contains(term) || 
+            c.PrimerApellido!.ToLower().Contains(term) || 
+            (c.SegundoApellido != null && c.SegundoApellido.ToLower().Contains(term)));
+        }
 
             var total = await query.CountAsync();
 
@@ -59,7 +73,7 @@ namespace Ecommerce.API.Service
             {
                 IdCliente = c.IdCliente,
                 IdPersona = c.IdPersona,
-                PrimerNombre = c.Persona.PrimerNombre,
+                PrimerNombre = c.Persona!.PrimerNombre,
                 SegundoNombre = c.Persona.SegundoNombre,
                 PrimerApellido = c.Persona.PrimerApellido,
                 SegundoApellido = c.Persona.SegundoApellido,
@@ -76,7 +90,7 @@ namespace Ecommerce.API.Service
 
 
             var personaExist = await _context.Persona.AnyAsync(p => p.IdPersona == dto.IdPersona);
-            if (personaExist)
+            if (!personaExist)
             {
                 throw new Exception("La persona no existe");
             }

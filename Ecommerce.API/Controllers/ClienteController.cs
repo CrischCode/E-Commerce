@@ -22,9 +22,9 @@ namespace Ecommerce.API.Controllers
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
+    public async Task<IActionResult> GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 10, [FromQuery] int? idCliente = null, [FromQuery] string? busqueda = null)
         {
-           var result = await _ClienteService.GetPagedAsync(page, pageSize);
+           var result = await _ClienteService.GetPagedAsync(page, pageSize, idCliente, busqueda);
            return Ok(new {result.Total, result.Items}); 
         }
     
