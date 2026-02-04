@@ -1,14 +1,12 @@
-using Ecommerce.API.Models;
+using Ecommerce.API.DTOs;
 
 namespace Ecommerce.API.Interfaces; 
 
 public interface IPersonaService
 {
-    Task<IEnumerable<Persona>> GetAllAsync();
-    Task<Persona?> GetByIdAsync(Guid id);
-    Task<Persona> CreateAsync(Persona persona);
-
-    //Task<Persona> SaveChangesAsync(Persona persona);
-    Task UpdateAsync(Persona persona);
+    Task<(IEnumerable<PersonaReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize, Guid? idPersona, string? busqueda);
+    Task<PersonaReadDto?> GetByIdAsync(Guid id);
+    Task<PersonaReadDto> CreateAsync(PersonaCreateDto dto);
+    Task<bool> PatchAsync(Guid id, PersonaPatchDto dto);
     Task<bool> DeleteAsync(Guid id);
 }
