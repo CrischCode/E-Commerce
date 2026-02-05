@@ -1,0 +1,68 @@
+@page "/clientes"
+@using Ecommerce.Shared.DTOs
+@using E_Commerce_Frontend.Services
+@inject ClienteClientService ClienteService
+
+<div class="container mt-4">
+    <h3 class="mb-4">Gestión de Clientes (PostgreSQL + Blazor)</h3>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <EditForm Model="@nuevoCliente" OnValidSubmit="Guardar">
+                <div class="row g-2">
+                    <div class="col-md-3">
+                        <InputText class="form-control" placeholder="Nombre" @bind-Value="nuevoCliente.PrimerNombre" />
+                    </div>
+                    <div class="col-md-3">
+                        <InputText class="form-control" placeholder="Apellido" @bind-Value="nuevoCliente.PrimerApellido" />
+                    </div>
+                    <div class="col-md-3">
+                        <InputText class="form-control" placeholder="Teléfono" @bind-Value="nuevoCliente.Telefono" />
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-success w-100">Registrar</button>
+                    </div>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+
+    @if (clientes == null) {
+        <p>Cargando datos...</p>
+    } else {
+        <table class="table table-striped border">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre Completo</th>
+                    <th>Puntos</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var c in clientes) {
+                    <tr>
+                        <td>@c.IdCliente</td>
+                        <td>@c.PrimerNombre @c.PrimerApellido</td>
+                        <td><span class="badge bg-primary">@c.Puntos</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+@code {
+    private List<ClienteReadDto>? clientes;
+    private RegistroDto nuevoCliente = new RegistroDto { IdPersona = Guid.NewGuid() };
+
+    protected override async Task OnInitializedAsync() => await Cargar();
+
+    private async Task Cargar() => clientes = await ClienteService.GetClientesAsync();
+
+    private async Task Guardar() {
+        if (await ClienteService.RegistrarClienteAsync(nuevoCliente)) {
+            nuevoCliente = new RegistroDto { IdPersona = Guid.NewGuid() };
+            await Cargar();
+        }
+    }
+}
