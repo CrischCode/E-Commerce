@@ -21,11 +21,12 @@ namespace Ecommerce.API.Controllers
             _productoService = productoService;
         }
 
+/*
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
             var producto = await _productoService.GetAllAsync();
-            var result = producto.Select(p => new ProductoReadteDtos
+            var result = producto.Select(p => new ProductoReadtDtos
             {
                 IdProducto = p.IdProducto,
                 Nombre = p.Nombre,
@@ -35,6 +36,19 @@ namespace Ecommerce.API.Controllers
 
             });
             return Ok(result);
+        } */
+
+        [HttpGet("paged")]
+        public async Task<IActionResult> GetPaged(int page = 1, int pageSize = 10, string? categoria = null)
+        {
+            var (items, total) = await _productoService.GetPagedAsync(page, pageSize, categoria);
+    
+    return Ok(new {
+        Items = items,
+        TotalCount = total,
+        CurrentPage = page,
+        PageSize = pageSize
+    });
         }
 
         [HttpGet("{id:int}")]
@@ -43,7 +57,7 @@ namespace Ecommerce.API.Controllers
             var producto = await _productoService.GetByIdAsync(id);
             if (producto == null) return NotFound();
 
-            return Ok(new ProductoReadteDtos
+            return Ok(new ProductoReadtDtos
             {
                 IdProducto = producto.IdProducto,
                 Nombre = producto.Nombre,

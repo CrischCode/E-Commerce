@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Ecommerce.API.DTOs
+namespace Ecommerce.Shared.DTOs
 {
     public class ProductoCreateDtos
     {

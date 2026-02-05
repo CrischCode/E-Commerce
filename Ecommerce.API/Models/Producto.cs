@@ -14,4 +14,7 @@ public class Producto
     public decimal Precio {get; set;}
     public int Existencias {get; set;}
     public int IdCategoria {get; set;}
+
+    [ForeignKey("IdCategoria")]
+    public virtual Categoria? Categoria {get; set;}
 }

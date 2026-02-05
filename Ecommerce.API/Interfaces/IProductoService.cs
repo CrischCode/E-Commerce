@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Data.SqlTypes;
 using System.Linq;
 using System.Threading.Tasks;
+using Ecommerce.API.DTOs;
 using Ecommerce.API.Models;
 
 namespace Ecommerce.API.Interfaces
 {
     public interface IProductoService
     {
-        Task<IEnumerable<Producto>> GetAllAsync();
+        Task<(IEnumerable<ProductoReadtDtos> Items, int Total)> GetPagedAsync(int page, int pageSize, string? categoria);
         Task<Producto?> GetByIdAsync(int id);
         Task<Producto> CreateAsync(Producto producto);
         Task<Producto> UpdateAsync(Producto producto);
