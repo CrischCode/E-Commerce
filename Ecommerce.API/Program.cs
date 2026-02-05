@@ -44,7 +44,6 @@ builder.Services.AddScoped<IMovimientoInventario, MovimientoInventarioService>()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -55,4 +54,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.MapControllers();
+app.UseCors(options => // esto ayuda a conectar el front con la API
+{
+    options.AllowAnyOrigin();
+    options.AllowAnyMethod();
+    options.AllowAnyHeader();
+});
 app.Run();

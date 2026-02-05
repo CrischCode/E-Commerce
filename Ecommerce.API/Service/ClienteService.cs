@@ -6,7 +6,8 @@ using Ecommerce.API.Interfaces;
 using Ecommerce.API.Data;
 using Ecommerce.API.Models;
 using Microsoft.EntityFrameworkCore;
-using Ecommerce.API.DTOs;
+//using Ecommerce.API.DTOs;
+using Ecommerce.Shared.DTOs;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.API.Service
