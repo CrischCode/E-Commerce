@@ -1,0 +1,250 @@
+@page "/personas"
+@using Ecommerce.Shared.DTOs
+@using E_Commerce_Frontend.Interfaces
+@using System.ComponentModel.DataAnnotations
+@inject IPersonaService PersonaService
+@inject IJSRuntime JS
+
+<div class="container-fluid mt-4 px-4">
+    @* --- CABECERA ESTILO DASHBOARD --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Directorio de Personal</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Inicio</a></li>
+                    <li class="breadcrumb-item active">Personas</li>
+                </ol>
+            </nav>
+        </div>
+        <button class="btn btn-primary shadow-sm px-4 py-2 fw-bold d-flex align-items-center gap-2" 
+                style="border-radius: 10px; background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); border: none;"
+                @onclick="() => AbrirModal()">
+            <i class="bi bi-plus-lg"></i> Nuevo Registro
+        </button>
+    </div>
+
+    @* --- TARJETA PRINCIPAL --- *@
+    <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-header bg-white py-3 border-0">
+            <div class="input-group style-search" style="max-width: 400px;">
+                <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control bg-light border-0 shadow-none" 
+                       placeholder="Buscar por nombre o apellido..." 
+                       @bind="busqueda" @bind:event="oninput" @onkeyup="() => Cargar(1)" />
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            @if (personas == null)
+            {
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Cargando registros...</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="ps-4 py-3 text-muted fw-bold small">NOMBRE COMPLETO</th>
+                                <th class="py-3 text-muted fw-bold small">CONTACTO</th>
+                                <th class="py-3 text-muted fw-bold small">FECHA NAC.</th>
+                                <th class="text-end pe-4 py-3 text-muted fw-bold small">ACCIONES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var p in personas)
+                            {
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle me-3">@(p.PrimerNombre[0])@(p.PrimerApellido[0])</div>
+                                            <div>
+                                                <div class="fw-bold text-dark mb-0">@p.PrimerNombre @p.SegundoNombre</div>
+                                                <div class="text-muted x-small text-uppercase fw-bold">@p.PrimerApellido @p.SegundoApellido</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span class="badge rounded-pill bg-blue-light text-primary border-0 px-3 py-2">
+                                            <i class="bi bi-telephone-fill me-2"></i>@(string.IsNullOrEmpty(p.Telefono) ? "---" : p.Telefono)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="text-dark small"><i class="bi bi-calendar3 me-2 text-muted"></i>@(p.FechaNacimiento?.ToString("dd MMM yyyy") ?? "No definida")</div>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        @* BOTONES CON NOMBRES Y DISEÑO PULIDO *@
+                                        <button class="btn btn-action btn-edit me-2" @onclick="() => AbrirModal(p)">
+                                            <i class="bi bi-pencil-fill me-1"></i> Editar
+                                        </button>
+                                        <button class="btn btn-action btn-delete" @onclick="() => Eliminar(p)">
+                                            <i class="bi bi-trash3-fill me-1"></i> Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@* --- MODAL ESTILIZADO --- *@
+@if (mostrarModal)
+{
+    <div class="modal fade show d-block shadow" tabindex="-1" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0" style="border-radius: 20px;">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h4 class="modal-title fw-bold text-dark">@(esEdicion ? "Editar Información" : "Nuevo Registro")</h4>
+                    <button type="button" class="btn-close" @onclick="CerrarModal"></button>
+                </div>
+                <EditForm Model="modelo" OnValidSubmit="Guardar">
+                    <DataAnnotationsValidator />
+                    <div class="modal-body p-4 row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Primer Nombre</label>
+                            <InputText @bind-Value="modelo.PrimerNombre" class="form-control custom-input" placeholder="Ej. Carlos" />
+                            <ValidationMessage For="@(() => modelo.PrimerNombre)" class="text-danger small" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-muted">Segundo Nombre</label>
+                            <InputText @bind-Value="modelo.SegundoNombre" class="form-control custom-input" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Primer Apellido</label>
+                            <InputText @bind-Value="modelo.PrimerApellido" class="form-control custom-input" />
+                            <ValidationMessage For="@(() => modelo.PrimerApellido)" class="text-danger small" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small text-muted">Segundo Apellido</label>
+                            <InputText @bind-Value="modelo.SegundoApellido" class="form-control custom-input" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Teléfono</label>
+                            <InputText @bind-Value="modelo.Telefono" class="form-control custom-input" placeholder="+502 0000-0000" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Fecha Nacimiento</label>
+                            <InputDate @bind-Value="modelo.FechaNacimiento" class="form-control custom-input" />
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light px-4 fw-bold" style="border-radius: 10px;" @onclick="CerrarModal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm" style="border-radius: 10px;">
+                            @(esEdicion ? "Guardar Cambios" : "Crear Registro")
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .avatar-circle {
+        width: 40px; height: 40px; background: #e7f1ff; color: #0d6efd;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-weight: bold; font-size: 0.8rem; border: 1px solid #cfe2ff;
+    }
+    .x-small { font-size: 0.7rem; }
+    .bg-blue-light { background-color: #f0f7ff; }
+    .custom-input { border-radius: 10px; padding: 10px 15px; border: 1px solid #dee2e6; background-color: #f8f9fa; }
+    .custom-input:focus { background-color: #fff; border-color: #0d6efd; box-shadow: 0 0 0 0.25rem rgba(13,110,253,.1); }
+    
+    /* DISEÑO DE BOTONES DE ACCIÓN MEJORADO */
+    .btn-action {
+        padding: 6px 14px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600;
+        transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .btn-edit { background-color: #fff3cd; color: #856404; }
+    .btn-edit:hover { background-color: #ffc107; color: #fff; transform: translateY(-2px); }
+    .btn-delete { background-color: #f8d7da; color: #721c24; }
+    .btn-delete:hover { background-color: #dc3545; color: #fff; transform: translateY(-2px); }
+</style>
+
+@code {
+    private List<PersonaReadDto>? personas;
+    private bool mostrarModal = false;
+    private bool esEdicion = false;
+    private Guid idEditar;
+    private string busqueda = "";
+    private PersonaFormModel modelo = new();
+
+    protected override async Task OnInitializedAsync() => await Cargar();
+
+    private async Task Cargar(int pagina = 1)
+    {
+        var response = await PersonaService.GetPagedAsync(pagina, 10, busqueda);
+        personas = response.Data;
+    }
+
+    private void AbrirModal(PersonaReadDto? p = null)
+    {
+        if (p != null)
+        {
+            esEdicion = true;
+            idEditar = p.IdPersona;
+            modelo = new PersonaFormModel {
+                PrimerNombre = p.PrimerNombre, SegundoNombre = p.SegundoNombre,
+                PrimerApellido = p.PrimerApellido, SegundoApellido = p.SegundoApellido,
+                Telefono = p.Telefono,
+                FechaNacimiento = p.FechaNacimiento?.ToDateTime(TimeOnly.MinValue)
+            };
+        }
+        else
+        {
+            esEdicion = false;
+            modelo = new PersonaFormModel();
+        }
+        mostrarModal = true;
+    }
+
+    private void CerrarModal() => mostrarModal = false;
+
+    private async Task Guardar()
+    {
+        DateOnly? fecha = modelo.FechaNacimiento.HasValue ? DateOnly.FromDateTime(modelo.FechaNacimiento.Value) : null;
+
+        if (esEdicion)
+        {
+            var patchDto = new PersonaPatchDto {
+                PrimerNombre = modelo.PrimerNombre, SegundoNombre = modelo.SegundoNombre,
+                PrimerApellido = modelo.PrimerApellido, SegundoApellido = modelo.SegundoApellido,
+                Telefono = modelo.Telefono, FechaNacimiento = fecha
+            };
+            if (await PersonaService.UpdateAsync(idEditar, patchDto)) { CerrarModal(); await Cargar(); }
+        }
+        else
+        {
+            var createDto = new PersonaCreateDto {
+                PrimerNombre = modelo.PrimerNombre, SegundoNombre = modelo.SegundoNombre,
+                PrimerApellido = modelo.PrimerApellido, SegundoApellido = modelo.SegundoApellido,
+                Telefono = modelo.Telefono, FechaNacimiento = fecha
+            };
+            if (await PersonaService.CreateAsync(createDto)) { CerrarModal(); await Cargar(); }
+        }
+    }
+
+    private async Task Eliminar(PersonaReadDto p)
+    {
+        if (await JS.InvokeAsync<bool>("confirm", $"¿Eliminar registro de {p.PrimerNombre}?"))
+            if (await PersonaService.DeleteAsync(p.IdPersona)) await Cargar();
+    }
+
+    public class PersonaFormModel
+    {
+        [Required(ErrorMessage = "Obligatorio")] public string PrimerNombre { get; set; } = "";
+        public string? SegundoNombre { get; set; }
+        [Required(ErrorMessage = "Obligatorio")] public string PrimerApellido { get; set; } = "";
+        public string? SegundoApellido { get; set; }
+        public string? Telefono { get; set; }
+        public DateTime? FechaNacimiento { get; set; }
+    }
+}
