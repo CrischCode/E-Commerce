@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Ecommerce.API.Data;
 using Ecommerce.API.Interfaces;
 using Ecommerce.API.Models;
-using Ecommerce.API.DTOs;
+using Ecommerce.Shared.DTOs;
 
 namespace Ecommerce.API.Service
 {
