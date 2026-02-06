@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "E-Commerce-Frontend",
   "resources": {
-    "hash": "sha256-Jp9OqyLMChHITGBzgurSJJDenponiNagbe13NlM7hYw=",
+    "hash": "sha256-AbO4hodUMHI2xvaP4gNcKiW8XsRxUCzMNUwGLj+LFsQ=",
     "fingerprinting": {
       "Microsoft.AspNetCore.Authorization.bvu82j4ad3.wasm": "Microsoft.AspNetCore.Authorization.wasm",
       "Microsoft.AspNetCore.Components.ptfrz3fits.wasm": "Microsoft.AspNetCore.Components.wasm",
@@ -201,10 +201,10 @@
       "icudt_CJK.tjcz0u77k5.dat": "icudt_CJK.dat",
       "icudt_EFIGS.tptq2av103.dat": "icudt_EFIGS.dat",
       "icudt_no_CJK.lfu7j35m59.dat": "icudt_no_CJK.dat",
-      "Ecommerce.Shared.aes8t8sk4t.wasm": "Ecommerce.Shared.wasm",
-      "Ecommerce.Shared.at8mncnjes.pdb": "Ecommerce.Shared.pdb",
-      "E-Commerce-Frontend.w4b6uu8utp.wasm": "E-Commerce-Frontend.wasm",
-      "E-Commerce-Frontend.t13dusyv3q.pdb": "E-Commerce-Frontend.pdb"
+      "Ecommerce.Shared.pbxs78wwnv.wasm": "Ecommerce.Shared.wasm",
+      "Ecommerce.Shared.b9i77t5w3t.pdb": "Ecommerce.Shared.pdb",
+      "E-Commerce-Frontend.vhaaop7eyf.wasm": "E-Commerce-Frontend.wasm",
+      "E-Commerce-Frontend.31h8w572ji.pdb": "E-Commerce-Frontend.pdb"
     },
     "jsModuleNative": {
       "dotnet.native.st0ovrfdhi.js": "sha256-MBW/zayfv+YU6mhH7y4b8NNU4D1EYd7nf9gYrFshnnY="
@@ -414,12 +414,12 @@
       "WindowsBase.pg3o6xzigg.wasm": "sha256-dz62CHynC+zqTkbMOf3vm7YAhiRA8/pIoAwuqHfBL5M=",
       "mscorlib.jl2pswegra.wasm": "sha256-mSoCIDTdCQKTipW8VmFCypW/4AopZauaYRa8LoZdHvY=",
       "netstandard.uriri6ambh.wasm": "sha256-yuH/cvPd6r8N9nfPWihyckFD7hPFP+VQtQQxEqi7HIQ=",
-      "Ecommerce.Shared.aes8t8sk4t.wasm": "sha256-PqHiU2+S+dbL/QJ86Cz809vRlkKQ3eEnSxQYB7/YkPo=",
-      "E-Commerce-Frontend.w4b6uu8utp.wasm": "sha256-4JOZIgDWXY0o6iIXOqJZQxNZNUPliV4nExvS41yhxgE="
+      "Ecommerce.Shared.pbxs78wwnv.wasm": "sha256-tR7aK7HprihaxVz38YRL0MyQFuDIABvwoqscitOJ8oI=",
+      "E-Commerce-Frontend.vhaaop7eyf.wasm": "sha256-o1+nSGgXXZwZi5h0IV/+DlxhephvWOjiuWgb5D0unZc="
     },
     "pdb": {
-      "Ecommerce.Shared.at8mncnjes.pdb": "sha256-4tKLb9OfB4H+QeML02dWxZG6h059SUerHxk1NPXPgjg=",
-      "E-Commerce-Frontend.t13dusyv3q.pdb": "sha256-sf7Y8yxPO5J9IukxeaKd3SU1nSzV2vE9iXoMfePV7ug="
+      "Ecommerce.Shared.b9i77t5w3t.pdb": "sha256-0Vzo74godaiSQB28iF0B4Efx3imuAzVAB78asovcyG0=",
+      "E-Commerce-Frontend.31h8w572ji.pdb": "sha256-ybM/aZASOIHw85BRCtIdHi1lOKb1OUimPPfobrGg/p0="
     }
   },
   "cacheBootResources": true,

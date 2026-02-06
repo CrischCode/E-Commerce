@@ -21,9 +21,4 @@ namespace E_Commerce_Frontend.Services
             return response.IsSuccessStatusCode;
         }
     }
-
-    public class PagedResponse<T> {
-        public int Total { get; set; }
-        public List<T> Items { get; set; } = new();
-    }
 }

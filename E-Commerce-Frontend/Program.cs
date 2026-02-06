@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using E_Commerce_Frontend;
 using E_Commerce_Frontend.Services;
+using E_Commerce_Frontend.Interfaces;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -11,5 +12,8 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { 
     BaseAddress = new Uri("https://localhost:7253/") 
 });
+
+//serices
+builder.Services.AddScoped<IProductoService, ProductoService>();
 
 await builder.Build().RunAsync();
