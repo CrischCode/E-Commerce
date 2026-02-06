@@ -1,4 +1,11 @@
-using Ecommerce.API.DTOs;
+using System;
+using System.Collections.Generic;
+using System.Data.SqlTypes;
+using System.Linq;
+using System.Threading.Tasks;
+//using Ecommerce.API.DTOs;
+using Ecommerce.Shared.DTOs;
+using Ecommerce.API.Models;
 
 namespace Ecommerce.API.Interfaces; 
 

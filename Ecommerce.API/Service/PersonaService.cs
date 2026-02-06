@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Ecommerce.API.Interfaces;
-using Ecommerce.API.Data;
-using Ecommerce.API.Models;
 using Microsoft.EntityFrameworkCore;
-using Ecommerce.API.DTOs;
+using Ecommerce.API.Data;
+using Ecommerce.API.Interfaces;
+using Ecommerce.API.Models;
+using Ecommerce.Shared.DTOs;
 
 namespace Ecommerce.API.Service;
 
