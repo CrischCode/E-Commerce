@@ -9,10 +9,11 @@ namespace E_Commerce_Frontend.Services
         private readonly HttpClient _http;
         public ProductoService(HttpClient http) => _http = http;
 
-        public async Task<PagedResponse<ProductoReadtDtos>> GetPagedAsync(int page, int pageSize, string? categoria = null)
+        public async Task<PagedResponse<ProductoReadtDtos>> GetPagedAsync(int page, int pageSize, string? categoria = null, string? busqueda = null)
         {
             var url = $"api/Producto/paged?page={page}&pageSize={pageSize}";
-            if (!string.IsNullOrEmpty(categoria)) url += $"&categoria={categoria}";
+            if (!string.IsNullOrEmpty(categoria)) url += $"&Categoria={categoria}";
+            if(!string.IsNullOrEmpty(busqueda)) url += $"&Busqueda={Uri.EscapeDataString(busqueda)}";
             return await _http.GetFromJsonAsync<PagedResponse<ProductoReadtDtos>>(url) ?? new();
         }
 

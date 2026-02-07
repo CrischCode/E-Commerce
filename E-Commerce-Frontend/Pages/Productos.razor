@@ -6,53 +6,97 @@
 @inject IJSRuntime JS
 @inject HttpClient Http 
 
-<div class="container mt-4">
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-            <h3 class="mb-0 text-primary fw-bold">📦 Gestión de Inventario</h3>
-            <button class="btn btn-primary px-4 shadow-sm" @onclick="() => AbrirModal()">
-                <i class="bi bi-plus-lg"></i> Nuevo Producto
-            </button>
+<div class="container-fluid mt-4 px-4">
+    @* --- CABECERA ESTILO DASHBOARD --- *@
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold text-dark mb-1">Gestión de Inventario</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Inicio</a></li>
+                    <li class="breadcrumb-item active">Productos</li>
+                </ol>
+            </nav>
         </div>
-        <div class="card-body">
+        <button class="btn btn-primary shadow-sm px-4 py-2 fw-bold d-flex align-items-center gap-2" 
+                style="border-radius: 10px; background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); border: none;"
+                @onclick="() => AbrirModal()">
+            <i class="bi bi-box-seam"></i> Nuevo Producto
+        </button>
+    </div>
+
+    @* --- TARJETA PRINCIPAL --- *@
+    <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
+        <div class="card-header bg-white py-3 border-0">
+            <div class="d-flex justify-content-between align-items-center">
+                @* --- BARRA DE BÚSQUEDA AGREGADA --- *@
+                <div class="input-group style-search" style="max-width: 400px;">
+                    <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" class="form-control bg-light border-0 shadow-none" 
+                           placeholder="Buscar producto por nombre..." 
+                           @bind="busqueda" @bind:event="oninput" @onkeyup="() => Cargar(1)" />
+                </div>
+                <h5 class="mb-0 fw-bold text-muted small text-uppercase d-none d-md-block">Existencias en Tiempo Real</h5>
+            </div>
+        </div>
+
+        <div class="card-body p-0">
             @if (productos == null)
             {
-                <div class="d-flex justify-content-center py-5">
+                <div class="text-center py-5">
                     <div class="spinner-border text-primary" role="status"></div>
+                    <p class="mt-2 text-muted">Cargando inventario...</p>
                 </div>
             }
             else
             {
                 <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead class="table-light">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="bg-light">
                             <tr>
-                                <th class="ps-3">Producto</th>
-                                <th>Precio</th>
-                                <th>Stock</th>
-                                <th>Categoría</th>
-                                <th class="text-center">Acciones</th>
+                                <th class="ps-4 py-3 text-muted fw-bold small">PRODUCTO</th>
+                                <th class="py-3 text-muted fw-bold small">CATEGORÍA</th>
+                                <th class="py-3 text-muted fw-bold small">PRECIO</th>
+                                <th class="py-3 text-muted fw-bold small">STOCK</th>
+                                <th class="text-end pe-4 py-3 text-muted fw-bold small">ACCIONES</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach (var p in productos)
                             {
                                 <tr>
-                                    <td class="ps-3 fw-semibold">@p.Nombre</td>
-                                    <td><span class="text-success fw-bold">@p.Precio.ToString("C")</span></td>
+                                    <td class="ps-4">
+                                        <div class="fw-bold text-dark">@p.Nombre</div>
+                                        <div class="text-muted x-small text-uppercase">ID-@p.IdProducto</div>
+                                    </td>
                                     <td>
-                                        <span class="badge @(p.Existencias < 5 ? "bg-danger" : "bg-light text-dark")">
-                                            @p.Existencias unidades
+                                        <span class="badge rounded-pill bg-blue-light text-primary border-0 px-3 py-2">
+                                            @p.Categoria
                                         </span>
                                     </td>
-                                    <td><span class="badge rounded-pill bg-info text-dark">@p.Categoria</span></td>
-                                    <td class="text-center">
-                                        @* BOTONES CON NOMBRES *@
-                                        <button class="btn btn-outline-warning btn-sm me-2" @onclick="() => AbrirModal(p)">
-                                            <i class="bi bi-pencil"></i> Editar
+                                    <td>
+                                        <span class="fw-bold text-dark">@p.Precio.ToString("C")</span>
+                                    </td>
+                                    <td>
+                                        @if (p.Existencias < 5)
+                                        {
+                                            <span class="badge bg-danger bg-opacity-10 text-danger px-3 py-2" style="border-radius: 8px;">
+                                                <i class="bi bi-exclamation-triangle-fill me-1"></i> @p.Existencias uds.
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2" style="border-radius: 8px;">
+                                                @p.Existencias uds.
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn btn-action btn-edit me-2" @onclick="() => AbrirModal(p)">
+                                            <i class="bi bi-pencil-fill me-1"></i> Editar
                                         </button>
-                                        <button class="btn btn-outline-danger btn-sm" @onclick="() => Eliminar(p)">
-                                            <i class="bi bi-trash"></i> Eliminar
+                                        <button class="btn btn-action btn-delete" @onclick="() => Eliminar(p)">
+                                            <i class="bi bi-trash3-fill me-1"></i> Eliminar
                                         </button>
                                     </td>
                                 </tr>
@@ -61,22 +105,23 @@
                     </table>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center mt-3">
-                    <span class="text-muted small">Página @paginaActual de @totalPaginas</span>
+                @* --- PAGINACIÓN --- *@
+                <div class="d-flex justify-content-between align-items-center p-4 border-top">
+                    <span class="text-muted small fw-medium">Mostrando página @paginaActual de @totalPaginas</span>
                     <nav>
                         <ul class="pagination pagination-sm mb-0 shadow-sm">
                             <li class="page-item @(paginaActual == 1 ? "disabled" : "")">
-                                <button class="page-link" @onclick="() => Cargar(paginaActual - 1)">Anterior</button>
+                                <button class="page-link border-0" @onclick="() => Cargar(paginaActual - 1)"><i class="bi bi-chevron-left"></i></button>
                             </li>
                             @for (int i = 1; i <= totalPaginas; i++)
                             {
                                 int j = i;
                                 <li class="page-item @(paginaActual == j ? "active" : "")">
-                                    <button class="page-link" @onclick="() => Cargar(j)">@j</button>
+                                    <button class="page-link border-0 mx-1 rounded-2" @onclick="() => Cargar(j)">@j</button>
                                 </li>
                             }
                             <li class="page-item @(paginaActual == totalPaginas ? "disabled" : "")">
-                                <button class="page-link" @onclick="() => Cargar(paginaActual + 1)">Siguiente</button>
+                                <button class="page-link border-0" @onclick="() => Cargar(paginaActual + 1)"><i class="bi bi-chevron-right"></i></button>
                             </li>
                         </ul>
                     </nav>
@@ -86,37 +131,37 @@
     </div>
 </div>
 
+@* --- MODAL --- *@
 @if (mostrarModal)
 {
-    <div class="modal fade show d-block" tabindex="-1" style="background: rgba(0,0,0,0.5); z-index: 1050;">
+    <div class="modal fade show d-block shadow" tabindex="-1" style="background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 1050;">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg">
-                <div class="modal-header @(esEdicion ? "bg-warning" : "bg-primary text-white")">
-                    <h5 class="modal-title fw-bold">@(esEdicion ? "📝 Editar Producto" : "✨ Nuevo Producto")</h5>
+            <div class="modal-content border-0" style="border-radius: 20px;">
+                <div class="modal-header border-0 p-4 pb-0">
+                    <h4 class="modal-title fw-bold text-dark">@(esEdicion ? "Editar Producto" : "Nuevo Producto")</h4>
                     <button type="button" class="btn-close" @onclick="CerrarModal"></button>
                 </div>
                 <EditForm Model="modelo" OnValidSubmit="Guardar">
                     <DataAnnotationsValidator />
-                    <div class="modal-body p-4">
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Nombre</label>
-                            <InputText @bind-Value="modelo.Nombre" class="form-control" />
+                    <div class="modal-body p-4 row g-3">
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Nombre del Producto</label>
+                            <InputText @bind-Value="modelo.Nombre" class="form-control custom-input" placeholder="Nombre descriptivo..." />
                             <ValidationMessage For="@(() => modelo.Nombre)" class="text-danger small" />
                         </div>
-                        <div class="row">
-                            <div class="col-6 mb-3">
-                                <label class="form-label fw-bold">Precio</label>
-                                <InputNumber @bind-Value="modelo.Precio" class="form-control" />
-                            </div>
-                            <div class="col-6 mb-3">
-                                <label class="form-label fw-bold">Stock</label>
-                                <InputNumber @bind-Value="modelo.Existencias" class="form-control" />
-                            </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Precio</label>
+                            <InputNumber @bind-Value="modelo.Precio" class="form-control custom-input" />
+                            <ValidationMessage For="@(() => modelo.Precio)" class="text-danger small" />
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-bold">Categoría</label>
-                            <select class="form-select" @bind="modelo.IdCategoria">
-                                <option value="0">Seleccionar...</option>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold small">Stock Inicial</label>
+                            <InputNumber @bind-Value="modelo.Existencias" class="form-control custom-input" />
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Categoría</label>
+                            <select class="form-select custom-input" @bind="modelo.IdCategoria">
+                                <option value="0">Seleccione categoría...</option>
                                 @foreach (var cat in categorias)
                                 {
                                     <option value="@cat.Id_Categoria">@cat.Nombre</option>
@@ -125,15 +170,36 @@
                             <ValidationMessage For="@(() => modelo.IdCategoria)" class="text-danger small" />
                         </div>
                     </div>
-                    <div class="modal-footer bg-light">
-                        <button type="button" class="btn btn-secondary" @onclick="CerrarModal">Cancelar</button>
-                        <button type="submit" class="btn btn-primary fw-bold">Guardar Cambios</button>
+                    <div class="modal-footer border-0 p-4 pt-0">
+                        <button type="button" class="btn btn-light px-4 fw-bold" style="border-radius: 10px;" @onclick="CerrarModal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm" style="border-radius: 10px; background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%); border:none;">
+                            @(esEdicion ? "Guardar Cambios" : "Crear Producto")
+                        </button>
                     </div>
                 </EditForm>
             </div>
         </div>
     </div>
 }
+
+<style>
+    .x-small { font-size: 0.7rem; }
+    .bg-blue-light { background-color: #f0f7ff; }
+    .custom-input { border-radius: 10px; padding: 10px 15px; border: 1px solid #dee2e6; background-color: #f8f9fa; }
+    .custom-input:focus { background-color: #fff; border-color: #0d6efd; box-shadow: 0 0 0 0.25rem rgba(13,110,253,.1); }
+    
+    .btn-action {
+        padding: 6px 14px; border-radius: 8px; border: none; font-size: 0.85rem; font-weight: 600;
+        transition: all 0.2s ease; display: inline-flex; align-items: center; justify-content: center;
+    }
+    .btn-edit { background-color: #fff3cd; color: #856404; }
+    .btn-edit:hover { background-color: #ffc107; color: #fff; transform: translateY(-2px); }
+    .btn-delete { background-color: #f8d7da; color: #721c24; }
+    .btn-delete:hover { background-color: #dc3545; color: #fff; transform: translateY(-2px); }
+
+    .pagination .page-link { color: #6c757d; padding: 8px 12px; }
+    .pagination .active .page-link { background-color: #0d6efd !important; color: white !important; }
+</style>
 
 @code {
     private List<ProductoReadtDtos>? productos;
@@ -146,6 +212,7 @@
     private bool mostrarModal = false;
     private bool esEdicion = false;
     private int idEditar;
+    private string busqueda = ""; // Variable para el filtro
     private ProductoFormModel modelo = new();
 
     protected override async Task OnInitializedAsync()
@@ -158,8 +225,12 @@
 
     private async Task Cargar(int pagina = 1)
     {
+        if (pagina < 1) pagina = 1;
         paginaActual = pagina;
-        var response = await ProductoService.GetPagedAsync(paginaActual, tamañoPagina);
+        
+        // Enviamos la búsqueda al service del front
+        var response = await ProductoService.GetPagedAsync(paginaActual, tamañoPagina, null, busqueda);
+        
         productos = response.Items;
         totalItems = response.TotalCount;
     }

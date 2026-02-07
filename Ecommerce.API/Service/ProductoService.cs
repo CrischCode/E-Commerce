@@ -19,7 +19,7 @@ namespace Ecommerce.API.Service
             _context = context;
         }
 
-        public async Task<(IEnumerable<ProductoReadtDtos> Items, int Total)> GetPagedAsync(int page, int pageSize, string? categoria)
+        public async Task<(IEnumerable<ProductoReadtDtos> Items, int Total)> GetPagedAsync(int page, int pageSize, string? categoria, string? busqueda)
         {
             var query = from p in _context.Producto
                         join c in _context.Categoria on p.IdCategoria equals c.Id_Categoria
@@ -28,6 +28,10 @@ namespace Ecommerce.API.Service
             if (!string.IsNullOrWhiteSpace(categoria))
             {
                 query = query.Where(x => x.c.Nombre != null && x.c.Nombre.ToLower().Contains(categoria.ToLower()));
+            }
+            if (!string.IsNullOrWhiteSpace(busqueda))
+            {
+                query = query.Where(x => x.p.Nombre != null && x.p.Nombre.ToLower().Contains(busqueda.ToLower()));
             }
 
             var total = await query.CountAsync();
