@@ -6,7 +6,7 @@ using Ecommerce.API.Interfaces;
 using Ecommerce.API.Data;
 using Ecommerce.API.Models;
 using Microsoft.EntityFrameworkCore;
-using Ecommerce.API.DTOs;
+using Ecommerce.Shared.DTOs;
 
 namespace Ecommerce.API.Service
 {
@@ -29,7 +29,7 @@ namespace Ecommerce.API.Service
                    .ToListAsync();
                 } */
 
-        public async Task<(IEnumerable<PedidoReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize, string? estado, int? idCliente)
+        public async Task<(IEnumerable<PedidoReadDto> Items, int Total)> GetPagedAsync(int page, int pageSize, string? estado, int? idPedido)
         {
             var query = _context.Pedido.AsNoTracking();
             /*
@@ -44,9 +44,9 @@ namespace Ecommerce.API.Service
                 query = query.Where(p => p.Estado == estado);
             }
 
-            if(idCliente.HasValue)
+            if(idPedido.HasValue)
             {
-                query = query.Where(p => p.IdCliente == idCliente.Value);
+                query = query.Where(p => p.IdPedido == idPedido.Value);
             }
 
             var total = await query.CountAsync();

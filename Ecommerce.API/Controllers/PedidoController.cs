@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Ecommerce.API.DTOs;
+using Ecommerce.Shared.DTOs;
 using Ecommerce.API.Interfaces;
 using Ecommerce.API.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -21,9 +21,9 @@ namespace Ecommerce.API.Controllers
     } 
 
     [HttpGet("paged")]
-public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] int pageSize = 10, [FromQuery] string? estado = null, [FromQuery] int? idCliente = null)
+public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] int pageSize = 10, [FromQuery] string? estado = null, [FromQuery] int? idPedido = null)
 {
-    var (items, total) = await _pedidoService.GetPagedAsync(page, pageSize, estado, idCliente);
+    var (items, total) = await _pedidoService.GetPagedAsync(page, pageSize, estado, idPedido);
 
 
     return Ok(
