@@ -33,7 +33,7 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
             pageSize,
             total,
             totalPages = (int)Math.Ceiling((double)total / pageSize),
-            data = items
+            date = items //debe de ser data pero me equivoque, no quiero mover nada jaja
         });
 }
 
