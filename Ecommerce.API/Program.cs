@@ -38,6 +38,7 @@ builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<ICategoria, CategoriaService>();
 builder.Services.AddScoped<IPedido, PedidoService>();
 builder.Services.AddScoped<IMovimientoInventario, MovimientoInventarioService>();
+builder.Services.AddScoped<ICarrito, CarritoService>();
 
 
 // Swagger

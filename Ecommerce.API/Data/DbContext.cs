@@ -19,8 +19,9 @@ public class AppDbContext : DbContext
     public DbSet<DetallePedido> DetallePedido => Set<DetallePedido>();
     public DbSet<Pedido> Pedido => Set<Pedido>();
     public DbSet<MetodoPago> MetodoPago => Set<MetodoPago>();
-
     public DbSet<MovimientoInventario> MovimientoInventario => Set<MovimientoInventario>();
+    public DbSet<Carrito> Carrito => Set<Carrito>();
+    public DbSet<DetalleCarrito> DetalleCarrito => Set<DetalleCarrito>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -102,7 +103,9 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<DetallePedido>().ToTable("detalle_pedido");
         modelBuilder.Entity<Pedido>().ToTable("pedido");
         modelBuilder.Entity<MetodoPago>().ToTable("metodo_pago");
-         modelBuilder.Entity<MovimientoInventario>().ToTable("movimiento_inventario");
+        modelBuilder.Entity<MovimientoInventario>().ToTable("movimiento_inventario");
+        modelBuilder.Entity<Carrito>().ToTable("carrito");
+        modelBuilder.Entity<DetalleCarrito>().ToTable("detalle_carrito");
 
         base.OnModelCreating(modelBuilder);
     }

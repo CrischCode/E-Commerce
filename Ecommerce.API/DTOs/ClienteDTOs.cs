@@ -1,4 +1,4 @@
-using System;
+/*using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -56,4 +56,6 @@ public class RegistroDto
     public string? Telefono { get; set; }
     public DateOnly? FechaNacimiento { get; set; }
 }
+
+*/
 
