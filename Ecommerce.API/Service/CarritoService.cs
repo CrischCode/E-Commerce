@@ -94,6 +94,71 @@ namespace Ecommerce.API.Service
             _context.DetalleCarrito.RemoveRange(carrito.Detalles);
             return await _context.SaveChangesAsync() > 0;
         }
+        public async Task<bool> ProcesarCompraAsync(ConfirmarPedidoDto dto)
+        {
+            using var transaction = await _context.Database.BeginTransactionAsync();
+
+            //aqui ontnemos el carrito con los productos 
+            var carrito = await _context.Carrito
+            .Include(c => c.Detalles)
+            .ThenInclude(d => d.Producto)
+            .FirstOrDefaultAsync(c => c.IdCliente == dto.IdCliente);
+
+            if(carrito == null || !carrito.Detalles.Any()) return false;
+
+            //se crea la cabecera del pedido
+            var nuevoPedido = new Pedido
+            {
+                IdCliente = dto.IdCliente,
+                IdMetodoPago = dto.IdMetodoPago,
+                FechaPedido = DateTime.Now,
+                Estado = "Pendiente",
+                Total = carrito.Detalles.Sum(d => d.Cantidad * (d.Producto?.Precio ?? 0))
+            };
+
+            //se guarda el pedido
+            _context.Pedido.Add(nuevoPedido);
+            await _context.SaveChangesAsync();
+
+            //INVENTARIO
+            //aqui movemois los detalles y afectamos el invenatario por si se hace la compra
+            foreach(var item in carrito.Detalles)
+            {
+                var producto = item.Producto;
+                if(producto == null || producto.Existencias < item.Cantidad)
+                throw new Exception($"Stock insuficiente para: {producto?.Nombre}");
+
+                //si hay stok creamos el detalle del pedido 
+                var detalles = new DetallePedido {
+                    IdPedido = nuevoPedido.IdPedido,
+                    IdProducto = item.IdProducto,
+                    Cantidad = item.Cantidad,
+                    PrecioUnitario = producto.Precio
+                };
+                _context.DetallePedido.Add(detalles);
+
+            //Actualizamos el inventario
+            producto.Existencias -= item.Cantidad;
+
+            //REGISTRAMOS EL MOVIMIENTO
+            _context.MovimientoInventario.Add(new MovimientoInventario
+            {
+                IdProducto = item.IdProducto,
+                TipoMovimiento = "Salida",
+                Cantidad = item.Cantidad,
+                Motivo = $"Venta Pedido #{nuevoPedido.IdPedido}",
+                FechaMovimiento = DateTime.Now
+            });
+            }  
+
+             //limpiar carrito
+            _context.DetalleCarrito.RemoveRange(carrito.Detalles);
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return true; 
+             
+        }
         
     }
 }

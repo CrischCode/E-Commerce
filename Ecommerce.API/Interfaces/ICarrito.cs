@@ -13,6 +13,7 @@ namespace Ecommerce.API.Interfaces
         Task<bool> AgregarProductoAsync(int idCliente, int idProducto, int cantidad);
         Task<bool> EliminarProductoAsync(int idCarrito, int idProducto);
         Task<bool> LimpiarCarritoAsync(int idCliente);
+        Task<bool> ProcesarCompraAsync(ConfirmarPedidoDto dto);
 
         
     }

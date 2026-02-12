@@ -49,6 +49,14 @@ namespace Ecommerce.API.Controllers
         var ok = await _carritoService.EliminarProductoAsync(idCarrito, idProducto);
         return ok ? Ok() : NotFound();
     }
+
+    [HttpPost("nuevo")]
+        public async Task<IActionResult> Confirmar([FromBody] ConfirmarPedidoDto dto)
+        {
+            var resultado = await _carritoService.ProcesarCompraAsync(dto);
+            if(resultado) return Ok("Pedido realizado con exito");
+            return BadRequest("No se puedo completar el pedido");
+        }
         
     }
 }

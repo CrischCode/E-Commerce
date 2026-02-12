@@ -36,4 +36,10 @@ namespace Ecommerce.Shared.DTOs
         public int Cantidad {get; set;}
         public decimal SubTotal => Precio * Cantidad;
     }
+
+    public class ConfirmarPedidoDto
+    {
+        public int IdCliente {get; set;}
+        public int IdMetodoPago {get; set;}
+    }
 }

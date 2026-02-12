@@ -33,7 +33,7 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
             pageSize,
             total,
             totalPages = (int)Math.Ceiling((double)total / pageSize),
-            date = items
+            data = items
         });
 }
 
@@ -153,7 +153,5 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
                 return BadRequest(new {error = ex.Message});
             }
         }
-
-
     }
 }
