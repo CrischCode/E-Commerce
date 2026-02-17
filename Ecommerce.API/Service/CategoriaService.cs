@@ -6,6 +6,7 @@ using Ecommerce.API.Interfaces;
 using Ecommerce.API.Data;
 using Ecommerce.API.Models;
 using Microsoft.EntityFrameworkCore;
+using Ecommerce.Shared.DTOs;
 
 namespace Ecommerce.API.Service
 {

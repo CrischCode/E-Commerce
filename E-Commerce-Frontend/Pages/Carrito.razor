@@ -1,0 +1,111 @@
+@page "/carrito"
+@using Ecommerce.Shared.DTOs
+@using E_Commerce_Frontend.Interfaces
+@inject ICarrito CarritoService
+@inject IJSRuntime JS
+
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="fw-bold"><i class="bi bi-bag-check me-2"></i>Tu Bolsa</h2>
+                <span class="text-muted">@(miCarrito?.Items.Count ?? 0) artículos</span>
+            </div>
+
+            @if (miCarrito == null) {
+                <div class="text-center py-5"><div class="spinner-border"></div></div>
+            } else if (!miCarrito.Items.Any()) {
+                <div class="card border-0 shadow-sm p-5 text-center rounded-4">
+                    <i class="bi bi-cart-x display-1 text-muted"></i>
+                    <h3 class="mt-3">Tu carrito está vacío</h3>
+                    <a href="/catalogoCliente" class="btn btn-primary mt-3 px-4 rounded-pill">Explorar Tienda</a>
+                </div>
+            } else {
+                @foreach (var item in miCarrito.Items) {
+                    <div class="card mb-3 border-0 shadow-sm rounded-4 overflow-hidden">
+                        <div class="card-body p-3">
+                            <div class="row align-items-center">
+                                <div class="col-3 col-md-2">
+                                    <img src="https://placehold.co/100x100?text=Item" class="img-fluid rounded-3" />
+                                </div>
+                                <div class="col-9 col-md-4">
+                                    <h6 class="fw-bold mb-0">@item.NombreProducto</h6>
+                                    <p class="text-muted small mb-0">@item.Precio.ToString("C")</p>
+                                </div>
+                                <div class="col-6 col-md-3 mt-3 mt-md-0">
+                                    <div class="input-group input-group-sm quantity-selector">
+                                        <button class="btn btn-outline-dark border-secondary" @onclick="() => ModificarCantidad(item, -1)">-</button>
+                                        <span class="input-group-text bg-white border-secondary px-3">@item.Cantidad</span>
+                                        <button class="btn btn-outline-dark border-secondary" @onclick="() => ModificarCantidad(item, 1)">+</button>
+                                    </div>
+                                </div>
+                                <div class="col-4 col-md-2 text-end">
+                                    <span class="fw-bold">@item.SubTotal.ToString("C")</span>
+                                </div>
+                                <div class="col-2 col-md-1 text-end">
+                                    <button class="btn text-danger p-0" @onclick="() => Eliminar(item.IdProducto)"><i class="bi bi-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-4 p-4 sticky-top" style="top: 20px;">
+                <h4 class="fw-bold mb-4">Resumen de compra</h4>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span>
+                    <span>@miCarrito?.Items.Sum(i => i.SubTotal).ToString("C")</span>
+                </div>
+                <div class="d-flex justify-content-between mb-3">
+                    <span>Envío</span>
+                    <span class="text-success fw-bold">Gratis</span>
+                </div>
+                <hr>
+                <div class="d-flex justify-content-between mb-4">
+                    <span class="h5 fw-bold">Total</span>
+                    <span class="h5 fw-bold text-primary">@miCarrito?.Items.Sum(i => i.SubTotal).ToString("C")</span>
+                </div>
+                <button class="btn btn-dark w-100 py-3 rounded-pill fw-bold" @onclick="FinalizarCompra">
+                    Finalizar Pedido <i class="bi bi-arrow-right ms-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .quantity-selector .btn { width: 32px; border-radius: 8px; }
+    .quantity-selector .input-group-text { min-width: 40px; justify-content: center; font-weight: bold; }
+    .sticky-top { z-index: 10; }
+</style>
+
+@code {
+    private CarritoReadDto? miCarrito;
+    private int idClienteActual = 1;
+
+    protected override async Task OnInitializedAsync() => await CargarCarrito();
+
+    private async Task CargarCarrito() => miCarrito = await CarritoService.GetCarritoByClienteAsync(idClienteActual);
+
+    private async Task ModificarCantidad(CarritoItemDto item, int cambio) {
+        var ok = await CarritoService.AgregarProductoAsync(idClienteActual, item.IdProducto, cambio);
+        if (ok) await CargarCarrito();
+    }
+
+    private async Task Eliminar(int idProducto) {
+        var ok = await CarritoService.EliminarProductoAsync(miCarrito!.IdCarrito, idProducto);
+        if (ok) await CargarCarrito();
+    }
+
+    private async Task FinalizarCompra() {
+        var dto = new ConfirmarPedidoDto { IdCliente = idClienteActual, IdMetodoPago = 1 };
+        var ok = await CarritoService.ProcesarCompraAsync(dto);
+        if (ok) {
+            await JS.InvokeVoidAsync("Swal.fire", "¡Pedido Exitoso!", "Tu compra se ha procesado correctamente.", "success");
+            await CargarCarrito();
+        }
+    }
+}

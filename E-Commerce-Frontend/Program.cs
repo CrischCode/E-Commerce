@@ -17,6 +17,8 @@ builder.Services.AddScoped(sp => new HttpClient {
 builder.Services.AddScoped<IProductoService, ProductoService>();
 builder.Services.AddScoped<IPersonaService, PersonaService>();
 builder.Services.AddScoped<IPedidos, PedidoService>();
+builder.Services.AddScoped<ICarrito, CarritoService>();
+builder.Services.AddScoped<ICatalogo, CatalogoService>();
 
 
 await builder.Build().RunAsync();

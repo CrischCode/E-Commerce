@@ -39,18 +39,4 @@ namespace Ecommerce.Shared.DTOs
     public int? Existencias {get; set;}
     public int? IdCategoria {get; set;}
     }
-
-    public class ProductoReadClienteDto
-    {
-    public int IdProducto { get; set; }
-    public string Nombre { get; set; } = string.Empty;
-    public string? Descripcion { get; set; }
-    public decimal Precio { get; set; }
-    public string? CategoriaNombre { get; set; }
-    public bool TieneStock => Existencias > 0;
-    public int Existencias {get; set;}
-    //public double PromedioCalificacion {get; set;}
-    public string? UrlImage {get; set;}
-
-    }
 }

@@ -58,6 +58,10 @@ namespace Ecommerce.API.Service
     if (detalle != null)
     {
         detalle.Cantidad += cantidad; 
+        if(detalle.Cantidad <= 0)
+                {
+                    _context.DetalleCarrito.Remove(detalle);
+                }
     } 
     else
     {
@@ -76,7 +80,7 @@ namespace Ecommerce.API.Service
         public async  Task<bool> EliminarProductoAsync(int idCarrito, int idProducto)
         {
             var detalle = await _context.DetalleCarrito
-            .FirstOrDefaultAsync(d => d.IdCarrito == d.IdCarrito && d.IdProducto == idProducto);
+            .FirstOrDefaultAsync(d => d.IdCarrito == idCarrito && d.IdProducto == idProducto);
 
             if(detalle == null) return false;
             _context.DetalleCarrito.Remove(detalle);

@@ -4,7 +4,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Ecommerce.API.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using Ecommerce.API.DTOs;
+//using Ecommerce.API.DTOs;
+using Ecommerce.Shared.DTOs;
 using Ecommerce.API.Models;
 using Ecommerce.API.Service;
 
