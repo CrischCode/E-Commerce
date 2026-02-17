@@ -234,15 +234,36 @@ namespace Ecommerce.API.Service
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var pedido = await _context.Pedido.FindAsync(id);
-            if (pedido == null) return false;
+            var pedido = await _context.Pedido
+        .Include(p => p.Detalles) // Importante incluir detalles para devolver stock
+        .FirstOrDefaultAsync(p => p.IdPedido == id);
 
-            if (pedido.Estado != "Pendiente")
-                throw new IndexOutOfRangeException("Solo se puede eliminar pedidos pendientes");
+    if (pedido == null) return false;
 
-            _context.Pedido.Remove(pedido);
-            await _context.SaveChangesAsync();
-            return true;
+    //solo permitimos cancelar pedidos que aún no han sido procesados o completados
+    if (pedido.Estado != "Pendiente")
+        throw new Exception("Solo se pueden cancelar pedidos en estado Pendiente.");
+    foreach (var detalle in pedido.Detalles)
+    {
+        var producto = await _context.Producto.FindAsync(detalle.IdProducto);
+        if (producto != null)
+        {
+            //Devolvemos el stock
+            producto.Existencias += detalle.Cantidad;
+            
+            _context.MovimientoInventario.Add(new MovimientoInventario
+            {
+                IdProducto = detalle.IdProducto,
+                TipoMovimiento = "Entrada",
+                Cantidad = detalle.Cantidad,
+                Motivo = $"Cancelación de pedido #{pedido.IdPedido}",
+                FechaMovimiento = DateTime.Now
+            });
+        }
+    }
+    pedido.Estado = "Cancelado"; 
+
+    return await _context.SaveChangesAsync() > 0;
         }
 
     }

@@ -146,7 +146,7 @@ public async Task<IActionResult> GetPaged([FromQuery]int page = 1,[FromQuery] in
                 var delete = await _pedidoService.DeleteAsync(id);
                 if(!delete) return NotFound(new {message = "Pedido no encontrado"});
 
-                return Ok(new {message = "Pedido eliminado"});
+                return Ok(new {message = "Pedido cancelado"});
 
             } catch(Exception ex)
             {
