@@ -27,7 +27,8 @@ namespace Ecommerce.Shared.DTOs
     public bool TieneStock => Existencias > 0;
     public int Existencias {get; set;}
     //public double PromedioCalificacion {get; set;}
-    public string? UrlImage {get; set;}
+    public byte[]? FotoData { get; set; }
+    public string? FotoMimeType { get; set; }
     }
 
 

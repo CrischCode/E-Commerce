@@ -5,50 +5,58 @@
 @inject ICarrito CarritoService
 @inject IJSRuntime JS
 
-<div class="container-fluid p-0 bg-light min-vh-100">
+<div class="container-fluid p-0 bg-white min-vh-100">
+    @* --- HERO SECTION PROFESIONAL --- *@
     <div class="ecommerce-hero">
-        <div class="hero-overlay"></div>
-        <div class="container py-5 position-relative">
-            <div class="row pt-5">
-                <div class="col-lg-7 text-white animate__animated animate__fadeIn">
-                    <span class="badge rounded-pill bg-info mb-3 px-4 py-2">COLECCIÓN 2026</span>
-                    <h1 class="display-3 fw-bolder mb-3">Tecnología de <br /><span class="text-info">Vanguardia</span></h1>
-                    <p class="fs-5 opacity-75">Encuentra los mejores dispositivos con garantía oficial y envío inmediato.</p>
+        <div class="hero-content container text-center text-white">
+            <span class="text-uppercase tracking-widest fw-light mb-2 d-block animate__animated animate__fadeInDown">Innovación en tus manos</span>
+            <h1 class="display-2 fw-bold mb-4 animate__animated animate__fadeInUp">Premium Tech <span class="text-primary-gradient">Store</span></h1>
+            <div class="d-flex justify-content-center gap-3 animate__animated animate__fadeInUp animate__delay-1s">
+                <a href="#productos" class="btn btn-primary-custom px-5 py-3 rounded-pill fw-bold shadow-lg">Ver Colección</a>
+            </div>
+        </div>
+    </div>
+
+    @* --- BUSCADOR FLOTANTE --- *@
+    <div id="productos" class="container search-section">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="glass-search p-2 shadow-xl">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-md-5 d-flex align-items-center ps-4">
+                            <i class="bi bi-search text-primary me-3"></i>
+                            <input type="text" class="form-control border-0 shadow-none bg-transparent" 
+                                   placeholder="¿Qué estás buscando hoy?" @bind="textoBusqueda" @bind:event="oninput" @onkeyup="Filtrar" />
+                        </div>
+                        <div class="col-md-4 border-start d-flex align-items-center ps-4">
+                            <i class="bi bi-filter text-muted me-3"></i>
+                            <select class="form-select border-0 shadow-none bg-transparent fw-medium" @onchange="OnCategoriaChanged">
+                                <option value="">Todas las Categorías</option>
+                                @foreach (var cat in categorias)
+                                {
+                                    <option value="@cat.Nombre">@cat.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-3 p-1">
+                            <button class="btn btn-dark w-100 rounded-pill py-3 fw-bold" @onclick="Filtrar">
+                                Buscar Ahora
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="container search-wrapper">
-        <div class="glass-search p-3 shadow-lg border-0">
-            <div class="row g-3 align-items-center">
-                <div class="col-md-6 position-relative">
-                    <i class="bi bi-search search-icon"></i>
-                    <input type="text" class="form-control border-0 bg-transparent ps-5" 
-                           placeholder="Buscar por nombre o marca..." @bind="textoBusqueda" @bind:event="oninput" @onkeyup="Filtrar" />
-                </div>
-                <div class="col-md-4">
-                    <select class="form-select border-0 bg-transparent fw-bold text-muted" @onchange="OnCategoriaChanged">
-                        <option value="">Todas las Categorías</option>
-                        @foreach (var cat in categorias)
-                        {
-                            <option value="@cat.Nombre">@cat.Nombre</option>
-                        }
-                    </select>
-                </div>
-                <div class="col-md-2">
-                    <button class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow-sm" @onclick="Filtrar">
-                        Buscar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container py-5">
+    @* --- GRILLA DE PRODUCTOS --- *@
+    <div class="container py-5 mt-5">
         @if (productos == null)
         {
-            <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
+            <div class="text-center py-5">
+                <div class="spinner-grow text-primary" role="status"></div>
+                <p class="mt-3 text-muted fw-medium">Preparando catálogo...</p>
+            </div>
         }
         else
         {
@@ -56,28 +64,47 @@
                 @foreach (var prod in productos)
                 {
                     <div class="col animate__animated animate__fadeInUp">
-                        <div class="card h-100 modern-card border-0 shadow-sm">
-                            <div class="card-img-container p-3">
+                        <div class="card h-100 product-card border-0">
+                            <div class="product-img-wrapper">
                                 @if (prod.Existencias <= 3 && prod.TieneStock)
                                 {
-                                    <span class="stock-alert">¡Casi agotado!</span>
+                                    <div class="badge-stock">Últimas unidades</div>
                                 }
-                                <img src="@(string.IsNullOrEmpty(prod.UrlImage) ? "https://placehold.co/400x400?text=Sin+Imagen" : prod.UrlImage)" 
-                                     class="card-img-top img-fit" alt="@prod.Nombre">
+                                
+                                @* --- LÓGICA DE IMAGEN BASE64 --- *@
+                                @if (prod.FotoData != null && prod.FotoData.Length > 0)
+                                {
+                                    <img src="data:@prod.FotoMimeType;base64,@Convert.ToBase64String(prod.FotoData)" 
+                                         class="product-img" alt="@prod.Nombre">
+                                }
+                                else
+                                {
+                                    <img src="https://placehold.co/600x600/f8f9fa/adb5bd?text=No+Image" 
+                                         class="product-img" alt="Sin imagen">
+                                }
+                                
+                                <div class="product-overlay">
+                                    <button class="btn btn-light btn-circle shadow-sm" title="Vista Rápida">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
                             </div>
-                            <div class="card-body">
-                                <small class="text-info fw-bold text-uppercase">@prod.CategoriaNombre</small>
-                                <h5 class="card-title fw-bold mb-1">@prod.Nombre</h5>
-                                <p class="card-text text-muted small text-truncate-2">@prod.Descripcion</p>
-                            </div>
-                            <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center pb-4 px-3">
-                                <span class="h4 fw-bold mb-0 text-dark">@prod.Precio.ToString("C")</span>
-                                <button class="btn btn-primary rounded-pill px-3 d-flex align-items-center gap-2 shadow-sm btn-hover-effect" 
-                                        @onclick="() => AgregarAlCarrito(prod)" 
-                                        disabled="@(!prod.TieneStock)">
-                                    <i class="bi bi-cart-plus-fill fs-5"></i>
-                                    <span>Agregar</span>
-                                </button>
+                            <div class="card-body px-1 pt-3">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <small class="text-uppercase tracking-wider text-muted x-small fw-bold">@prod.CategoriaNombre</small>
+                                    <div class="text-warning small">
+                                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
+                                    </div>
+                                </div>
+                                <h6 class="product-title mb-2">@prod.Nombre</h6>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <span class="fs-5 fw-bold text-dark">@prod.Precio.ToString("C")</span>
+                                    <button class="btn btn-add-cart" 
+                                            @onclick="() => AgregarAlCarrito(prod)" 
+                                            disabled="@(!prod.TieneStock)">
+                                        <i class="bi bi-plus-lg"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -88,22 +115,67 @@
 </div>
 
 <style>
-    .ecommerce-hero {
-        background: url('https://images.unsplash.com/photo-1518770660439-4636190af475?q=80&w=2070&auto=format&fit=crop');
-        background-size: cover; background-position: center; min-height: 350px; position: relative;
+    :root {
+        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
     }
-    .hero-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.65); }
-    .search-wrapper { margin-top: -45px; position: relative; z-index: 5; }
-    .glass-search { background: white; border-radius: 50px; }
-    .search-icon { position: absolute; left: 20px; top: 12px; color: #0d6efd; z-index: 10; }
-    .modern-card { border-radius: 20px; transition: transform 0.3s, box-shadow 0.3s; }
-    .modern-card:hover { transform: translateY(-10px); box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important; }
-    .card-img-container { height: 200px; display: flex; align-items: center; justify-content: center; position: relative; background: #fbfbfb; border-radius: 20px 20px 0 0; }
-    .img-fit { max-height: 100%; object-fit: contain; }
-    .stock-alert { position: absolute; top: 15px; right: 15px; background: #ef4444; color: white; padding: 4px 12px; border-radius: 30px; font-size: 0.7rem; font-weight: bold; }
-    .btn-hover-effect { transition: all 0.2s; }
-    .btn-hover-effect:hover:not(:disabled) { transform: scale(1.05); }
-    .text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .tracking-widest { letter-spacing: 0.2em; }
+    .tracking-wider { letter-spacing: 0.1em; }
+    .x-small { font-size: 0.65rem; }
+    .text-primary-gradient { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+    /* Hero */
+    .ecommerce-hero {
+        height: 80vh;
+        background: radial-gradient(circle at top right, #1e1e24, #000);
+        display: flex;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Search Bar */
+    .search-section { margin-top: -50px; }
+    .glass-search { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 100px; border: 1px solid rgba(0,0,0,0.05); }
+
+    /* Product Cards */
+    .product-card { transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); background: transparent; }
+    .product-img-wrapper { 
+        position: relative; 
+        border-radius: 24px; 
+        overflow: hidden; 
+        background: #fcfcfc; 
+        aspect-ratio: 1/1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .product-img { width: 100%; height: 100%; object-fit: contain; padding: 20px; transition: transform 0.6s ease; }
+    .product-card:hover .product-img { transform: scale(1.1); }
+    
+    .product-overlay { 
+        position: absolute; top:0; left:0; width:100%; height:100%; 
+        background: rgba(0,0,0,0.02); display: flex; align-items: center; 
+        justify-content: center; opacity: 0; transition: 0.3s;
+    }
+    .product-card:hover .product-overlay { opacity: 1; }
+    
+    .btn-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .product-title { font-weight: 600; font-size: 1rem; color: #1a1a1a; height: 2.4em; overflow: hidden; }
+
+    .badge-stock {
+        position: absolute; top: 15px; left: 15px; background: #000; color: #fff;
+        font-size: 0.65rem; padding: 5px 12px; border-radius: 50px; font-weight: bold; z-index: 2;
+    }
+
+    .btn-primary-custom { background: var(--primary-gradient); color: white; border: none; transition: 0.3s; }
+    .btn-primary-custom:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3); color: white; }
+
+    .btn-add-cart { 
+        width: 40px; height: 40px; border-radius: 12px; border: 1px solid #eee;
+        background: #fff; color: #000; transition: 0.3s;
+    }
+    .btn-add-cart:hover { background: #000; color: #fff; border-color: #000; }
 </style>
 
 @code {
@@ -134,12 +206,12 @@
         var ok = await CarritoService.AgregarProductoAsync(1, p.IdProducto, 1);
         if (ok) {
             await JS.InvokeVoidAsync("Swal.fire", new {
-                title = "¡Añadido!",
-                text = $"{p.Nombre} se agregó a tu carrito",
+                title = "Añadido al carrito",
+                text = p.Nombre,
                 icon = "success",
                 toast = true,
-                position = "top-end",
-                timer = 2000,
+                position = "bottom-end",
+                timer = 2500,
                 showConfirmButton = false
             });
         }

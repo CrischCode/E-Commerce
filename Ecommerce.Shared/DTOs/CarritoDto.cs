@@ -34,6 +34,8 @@ namespace Ecommerce.Shared.DTOs
         public string NombreProducto { get; set; } = string.Empty;
         public decimal Precio {get; set;}
         public int Cantidad {get; set;}
+        public byte[]? FotoData { get; set; }
+        public string? FotoMimeType { get; set; }
         public decimal SubTotal => Precio * Cantidad;
     }
 

@@ -13,7 +13,7 @@
             </div>
 
             @if (miCarrito == null) {
-                <div class="text-center py-5"><div class="spinner-border"></div></div>
+                <div class="text-center py-5"><div class="spinner-border text-primary"></div></div>
             } else if (!miCarrito.Items.Any()) {
                 <div class="card border-0 shadow-sm p-5 text-center rounded-4">
                     <i class="bi bi-cart-x display-1 text-muted"></i>
@@ -25,9 +25,22 @@
                     <div class="card mb-3 border-0 shadow-sm rounded-4 overflow-hidden">
                         <div class="card-body p-3">
                             <div class="row align-items-center">
-                                <div class="col-3 col-md-2">
-                                    <img src="https://placehold.co/100x100?text=Item" class="img-fluid rounded-3" />
+                                @* --- SECCIÓN DE IMAGEN GARANTIZADA --- *@
+                                <div class="col-3 col-md-2 text-center">
+                                    @if (item.FotoData != null && item.FotoData.Length > 0)
+                                    {
+                                        <img src="data:@(string.IsNullOrEmpty(item.FotoMimeType) ? "image/jpeg" : item.FotoMimeType);base64,@Convert.ToBase64String(item.FotoData)" 
+                                             class="img-fluid rounded-3 shadow-sm" 
+                                             style="max-height: 80px; width: 80px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-light rounded-3 d-flex align-items-center justify-content-center" style="height: 80px; width: 80px;">
+                                            <i class="bi bi-image text-muted fs-2"></i>
+                                        </div>
+                                    }
                                 </div>
+
                                 <div class="col-9 col-md-4">
                                     <h6 class="fw-bold mb-0">@item.NombreProducto</h6>
                                     <p class="text-muted small mb-0">@item.Precio.ToString("C")</p>
@@ -68,7 +81,7 @@
                     <span class="h5 fw-bold">Total</span>
                     <span class="h5 fw-bold text-primary">@miCarrito?.Items.Sum(i => i.SubTotal).ToString("C")</span>
                 </div>
-                <button class="btn btn-dark w-100 py-3 rounded-pill fw-bold" @onclick="FinalizarCompra">
+                <button class="btn btn-dark w-100 py-3 rounded-pill fw-bold" @onclick="FinalizarCompra" disabled="@(miCarrito == null || !miCarrito.Items.Any())">
                     Finalizar Pedido <i class="bi bi-arrow-right ms-2"></i>
                 </button>
             </div>
@@ -79,7 +92,6 @@
 <style>
     .quantity-selector .btn { width: 32px; border-radius: 8px; }
     .quantity-selector .input-group-text { min-width: 40px; justify-content: center; font-weight: bold; }
-    .sticky-top { z-index: 10; }
 </style>
 
 @code {
@@ -88,7 +100,11 @@
 
     protected override async Task OnInitializedAsync() => await CargarCarrito();
 
-    private async Task CargarCarrito() => miCarrito = await CarritoService.GetCarritoByClienteAsync(idClienteActual);
+    private async Task CargarCarrito() 
+    {
+        miCarrito = await CarritoService.GetCarritoByClienteAsync(idClienteActual);
+        StateHasChanged(); // Forzar actualización visual
+    }
 
     private async Task ModificarCantidad(CarritoItemDto item, int cambio) {
         var ok = await CarritoService.AgregarProductoAsync(idClienteActual, item.IdProducto, cambio);

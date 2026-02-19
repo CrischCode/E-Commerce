@@ -50,7 +50,8 @@ namespace Ecommerce.API.Service
                 Precio = p.Precio,
                 Existencias = p.Existencias,
                 CategoriaNombre = p.Categoria != null ? p.Categoria.Nombre : "Sin Categoría",
-                //UrlImage
+                FotoData = p.FotoData, 
+                FotoMimeType = p.FotoMimeType
             }).ToListAsync();
 
             return (items, total);

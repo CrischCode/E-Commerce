@@ -24,6 +24,7 @@ namespace Ecommerce.API.Service
             var carrito = await _context.Carrito
             .Include(c => c.Detalles)
             .ThenInclude(d => d.Producto)
+            .AsNoTracking()
             .FirstOrDefaultAsync(c => c.IdCliente == idCliente);
 
             if(carrito == null) return null;
@@ -34,7 +35,9 @@ namespace Ecommerce.API.Service
                 IdProducto = d.IdProducto,
                 NombreProducto = d.Producto?.Nombre ?? "Desconocido",
                 Precio = d.Producto?.Precio ?? 0,
-                Cantidad = d.Cantidad
+                Cantidad = d.Cantidad,
+                FotoData = d.Producto?.FotoData,
+                FotoMimeType = d.Producto?.FotoMimeType
             }).ToList()
         };
         }
