@@ -29,7 +29,6 @@
     <div class="card border-0 shadow-sm" style="border-radius: 15px; overflow: hidden;">
         <div class="card-header bg-white py-3 border-0">
             <div class="d-flex justify-content-between align-items-center">
-                @* --- BARRA DE BÚSQUEDA AGREGADA --- *@
                 <div class="input-group style-search" style="max-width: 400px;">
                     <span class="input-group-text bg-light border-0"><i class="bi bi-search text-muted"></i></span>
                     <input type="text" class="form-control bg-light border-0 shadow-none" 
@@ -66,8 +65,24 @@
                             {
                                 <tr>
                                     <td class="ps-4">
-                                        <div class="fw-bold text-dark">@p.Nombre</div>
-                                        <div class="text-muted x-small text-uppercase">ID-@p.IdProducto</div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            @if (p.FotoData != null && p.FotoData.Length > 0)
+                                            {
+                                                <img src="data:@p.FotoMimeType;base64,@Convert.ToBase64String(p.FotoData)" 
+                                                     style="width: 45px; height: 45px; object-fit: cover; border-radius: 8px; border: 1px solid #eee;" />
+                                            }
+                                            else
+                                            {
+                                                <div class="bg-light d-flex align-items-center justify-content-center" 
+                                                     style="width: 45px; height: 45px; border-radius: 8px;">
+                                                    <i class="bi bi-image text-muted"></i>
+                                                </div>
+                                            }
+                                            <div>
+                                                <div class="fw-bold text-dark">@p.Nombre</div>
+                                                <div class="text-muted x-small text-uppercase">ID-@p.IdProducto</div>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td>
                                         <span class="badge rounded-pill bg-blue-light text-primary border-0 px-3 py-2">
@@ -169,6 +184,28 @@
                             </select>
                             <ValidationMessage For="@(() => modelo.IdCategoria)" class="text-danger small" />
                         </div>
+                        @* --- SECCIÓN DE IMAGEN AGREGADA --- *@
+                        <div class="col-12">
+                            <label class="form-label fw-bold small">Imagen del Producto</label>
+                            <div class="d-flex align-items-center gap-3 p-3 border rounded-3 bg-light">
+                                <div class="flex-shrink-0">
+                                    @if (!string.IsNullOrEmpty(modelo.FotoPreview))
+                                    {
+                                        <img src="@modelo.FotoPreview" style="width: 60px; height: 60px; object-fit: cover; border-radius: 10px; border: 2px solid white; box-shadow: 0 2px 5px rgba(0,0,0,0.1);" />
+                                    }
+                                    else
+                                    {
+                                        <div class="bg-white d-flex align-items-center justify-content-center border" style="width: 60px; height: 60px; border-radius: 10px;">
+                                            <i class="bi bi-camera text-muted fs-4"></i>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="flex-grow-1">
+                                    <InputFile OnChange="OnInputFileChange" class="form-control form-control-sm border-0 shadow-none bg-transparent" accept="image/jpeg,image/png,image/gif" />
+                                    <div class="x-small text-muted mt-1">Sube un archivo JPG, PNG o GIF (Máx. 2MB)</div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div class="modal-footer border-0 p-4 pt-0">
                         <button type="button" class="btn btn-light px-4 fw-bold" style="border-radius: 10px;" @onclick="CerrarModal">Cancelar</button>
@@ -212,7 +249,7 @@
     private bool mostrarModal = false;
     private bool esEdicion = false;
     private int idEditar;
-    private string busqueda = ""; // Variable para el filtro
+    private string busqueda = ""; 
     private ProductoFormModel modelo = new();
 
     protected override async Task OnInitializedAsync()
@@ -227,10 +264,7 @@
     {
         if (pagina < 1) pagina = 1;
         paginaActual = pagina;
-        
-        // Enviamos la búsqueda al service del front
         var response = await ProductoService.GetPagedAsync(paginaActual, tamañoPagina, null, busqueda);
-        
         productos = response.Items;
         totalItems = response.TotalCount;
     }
@@ -240,7 +274,15 @@
         if (p != null) {
             esEdicion = true;
             idEditar = p.IdProducto;
-            modelo = new ProductoFormModel { Nombre = p.Nombre ?? "", Precio = p.Precio, Existencias = p.Existencias, IdCategoria = p.IdCategoria };
+            modelo = new ProductoFormModel { 
+                Nombre = p.Nombre ?? "", 
+                Precio = p.Precio, 
+                Existencias = p.Existencias, 
+                IdCategoria = p.IdCategoria,
+                FotoData = p.FotoData,
+                FotoMimeType = p.FotoMimeType,
+                FotoPreview = p.FotoData != null ? $"data:{p.FotoMimeType};base64,{Convert.ToBase64String(p.FotoData)}" : null
+            };
         } else {
             esEdicion = false;
             modelo = new ProductoFormModel();
@@ -250,11 +292,40 @@
 
     private void CerrarModal() => mostrarModal = false;
 
+    private async Task OnInputFileChange(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file != null)
+        {
+            var resizedFile = await file.RequestImageFileAsync(file.ContentType, 400, 400);
+            var buffer = new byte[resizedFile.Size];
+            await resizedFile.OpenReadStream().ReadAsync(buffer);
+
+            modelo.FotoData = buffer;
+            modelo.FotoMimeType = file.ContentType;
+            modelo.FotoPreview = $"data:{file.ContentType};base64,{Convert.ToBase64String(buffer)}";
+        }
+    }
+
     private async Task Guardar()
     {
         bool exito = esEdicion 
-            ? await ProductoService.UpdateAsync(idEditar, new ProductoUpdateDto { Nombre = modelo.Nombre, Precio = modelo.Precio, Existencias = modelo.Existencias, IdCategoria = modelo.IdCategoria })
-            : await ProductoService.CreateAsync(new ProductoCreateteDtos { Nombre = modelo.Nombre, Precio = modelo.Precio, Existencias = modelo.Existencias, IdCategoria = modelo.IdCategoria });
+            ? await ProductoService.UpdateAsync(idEditar, new ProductoUpdateDto { 
+                Nombre = modelo.Nombre, 
+                Precio = modelo.Precio, 
+                Existencias = modelo.Existencias, 
+                IdCategoria = modelo.IdCategoria,
+                FotoData = modelo.FotoData,
+                FotoMimeType = modelo.FotoMimeType
+            })
+            : await ProductoService.CreateAsync(new ProductoCreateDtos { 
+                Nombre = modelo.Nombre, 
+                Precio = modelo.Precio, 
+                Existencias = modelo.Existencias, 
+                IdCategoria = modelo.IdCategoria,
+                FotoData = modelo.FotoData,
+                FotoMimeType = modelo.FotoMimeType
+            });
 
         if (exito) {
             CerrarModal();
@@ -275,6 +346,10 @@
         [Range(0.01, 999999, ErrorMessage = "Precio inválido")] public decimal Precio { get; set; }
         public int Existencias { get; set; }
         [Range(1, int.MaxValue, ErrorMessage = "Elija una categoría")] public int IdCategoria { get; set; }
+        
+        public byte[]? FotoData { get; set; }
+        public string? FotoMimeType { get; set; }
+        public string? FotoPreview { get; set; }
     }
 
     public class CategoriaDto {

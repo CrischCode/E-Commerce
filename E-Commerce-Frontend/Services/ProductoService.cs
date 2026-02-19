@@ -20,7 +20,7 @@ namespace E_Commerce_Frontend.Services
         public async Task<ProductoReadtDtos?> GetByIdAsync(int id) =>
             await _http.GetFromJsonAsync<ProductoReadtDtos>($"api/Producto/{id}");
 
-        public async Task<bool> CreateAsync(ProductoCreateteDtos dto)
+        public async Task<bool> CreateAsync(ProductoCreateDtos dto)
         {
             var res = await _http.PostAsJsonAsync("api/Producto", dto);
             return res.IsSuccessStatusCode;
