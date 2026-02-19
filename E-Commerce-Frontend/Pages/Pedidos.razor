@@ -84,7 +84,7 @@
                                                 <i class="bi bi-gear-fill me-1"></i> Procesar
                                             </button>
                                             <button class="btn btn-action btn-delete" @onclick="() => Eliminar(ped.IdPedido)">
-                                                <i class="bi bi-trash3-fill me-1"></i> Eliminar
+                                                <i class="bi bi-trash3-fill me-1"></i> Cancelar
                                             </button>
                                         }
                                         @if (ped.Estado == "En Proceso")
@@ -265,8 +265,6 @@
     private PedidoCreateDto nuevoPedido = new() { Detalles = new() };
     private bool mostrarModalCrear = false;
     private string? estadoFiltro;
-    
-    // CORRECCIÓN: Variable de búsqueda renombrada para mayor claridad
     private int? idPedidoFiltro; 
     
     private int paginaActual = 1;
@@ -277,7 +275,6 @@
 
     private async Task Cargar()
     {
-        // Se envía idPedidoFiltro al backend
         var response = await PedidoService.GetPagedAsync(paginaActual, pageSize, estadoFiltro, idPedidoFiltro);
         pedidos = response.Date;
         totalItems = response.Total;
@@ -332,7 +329,7 @@
 
     private async Task Eliminar(int id)
     {
-        if (await JS.InvokeAsync<bool>("confirm", "¿Está seguro de eliminar este pedido pendiente?"))
+        if (await JS.InvokeAsync<bool>("confirm", "¿Está seguro de cancelar este pedido pendiente?"))
         {
             await PedidoService.DeleteAsync(id);
             await Cargar();
