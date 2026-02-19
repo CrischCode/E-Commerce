@@ -47,7 +47,9 @@ namespace Ecommerce.API.Service
                     Precio = x.p.Precio,
                     Existencias = x.p.Existencias,
                     IdCategoria = x.p.IdCategoria,
-                    Categoria = x.c.Nombre
+                    Categoria = x.c.Nombre,
+                    FotoData = x.p.FotoData,
+                    FotoMimeType = x.p.FotoMimeType
                 })
                 .ToListAsync();
 
@@ -62,48 +64,76 @@ namespace Ecommerce.API.Service
                   .ToListAsync();
             } */
 
-        public async Task<Producto?> GetByIdAsync(int id)
+        public async Task<ProductoReadtDtos?> GetByIdAsync(int id)
         {
             return await _context.Producto
-            .FirstOrDefaultAsync(p => p.IdProducto == id);
+            .Where(p => p.IdProducto == id)
+            .Select(p => new ProductoReadtDtos
+            {
+                IdProducto = p.IdProducto,
+                Nombre = p.Nombre,
+                Precio = p.Precio,
+                Existencias = p.Existencias,
+                IdCategoria = p.IdCategoria,
+                FotoData = p.FotoData,
+                FotoMimeType = p.FotoMimeType
+            }).FirstOrDefaultAsync();
         }
 
-        public async Task<Producto> CreateAsync(Producto producto)
+        public async Task<ProductoReadtDtos> CreateAsync(ProductoCreateDtos dto)
         {
             //validar que el producto exista
-            var exist = await _context.Producto.AnyAsync(p =>
-                p.Nombre != null && producto.Nombre != null &&
-                p.Nombre.ToLower() == producto.Nombre.ToLower());
-            if (exist) throw new InvalidOperationException("Ya hay un producto con ese nombre");
+          var exit = await _context.Producto.AnyAsync(p => p.Nombre != null && dto.Nombre != null
+          && p.Nombre.ToLower() == dto.Nombre.ToLower());
+          if(exit) throw new InvalidOperationException("Ya hay un producto con ese nombre");
 
             //validar que la categoriaa exista
             var categoriaExist = await _context.Categoria
-            .AnyAsync(c => c.Id_Categoria == producto.IdCategoria);
+            .AnyAsync(c => c.Id_Categoria == dto.IdCategoria);
             if (!categoriaExist) throw new KeyNotFoundException("La categoria no existe");
 
-            _context.Producto.Add(producto);
+            //se crea la entidad en la bd
+            var productoNuevo = new Producto
+            {
+                Nombre = dto.Nombre,
+            Precio = dto.Precio,
+            Existencias = dto.Existencias,
+            IdCategoria = dto.IdCategoria,
+            FotoData = dto.FotoData,
+            FotoMimeType = dto.FotoMimeType
+            };
+
+            _context.Producto.Add(productoNuevo);
             await _context.SaveChangesAsync();
-            return producto;
+
+            return new ProductoReadtDtos
+            {
+                IdProducto = productoNuevo.IdProducto,
+                Nombre = productoNuevo.Nombre,
+                Precio = productoNuevo.Precio,
+                Existencias = productoNuevo.Existencias,
+                IdCategoria = productoNuevo.IdCategoria,
+                FotoData = productoNuevo.FotoData,
+                FotoMimeType = productoNuevo.FotoMimeType
+            };
         }
 
-        public async Task<Producto> UpdateAsync(Producto producto)
+        public async Task<bool> UpdateAsync(int id, ProductoUpdateDto dto)
         {
-            //ver si el producto no exite
-            var exist = await _context.Producto
-            .AsNoTracking()
-            .AnyAsync(p => p.IdProducto == producto.IdProducto);
+            var producto = await _context.Producto.FindAsync(id);
+            if(producto == null) return false;
 
-            if (!exist)
-                throw new KeyNotFoundException("El producto no existe");
+            if (!string.IsNullOrWhiteSpace(dto.Nombre)) producto.Nombre = dto.Nombre;
+        if (dto.Precio.HasValue) producto.Precio = dto.Precio.Value;
+        if (dto.Existencias.HasValue) producto.Existencias = dto.Existencias.Value;
+        if (dto.IdCategoria.HasValue) producto.IdCategoria = dto.IdCategoria.Value;
+        //actualizacion de la imagen
+        if (dto.FotoData != null) {
+            producto.FotoData = dto.FotoData;
+            producto.FotoMimeType = dto.FotoMimeType;
+        }
 
-            //ver si la categoria existe
-            var categoriaExist = await _context.Categoria
-
-            .AnyAsync(c => c.Id_Categoria == producto.IdCategoria);
-            if (!categoriaExist) throw new KeyNotFoundException("La categoria no existe");
-
-            await _context.SaveChangesAsync();
-            return producto;
+        return await _context.SaveChangesAsync() > 0;
         }
 
         public async Task<bool> DeleteAsync(int id)

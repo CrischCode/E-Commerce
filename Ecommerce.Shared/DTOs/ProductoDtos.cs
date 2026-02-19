@@ -12,6 +12,8 @@ namespace Ecommerce.Shared.DTOs
     public decimal Precio {get; set;}
     public int Existencias {get; set;}
     public int IdCategoria {get; set;} 
+    public byte[]? FotoData { get; set; }
+    public string? FotoMimeType { get; set; }
     }
 
     public class ProductoReadtDtos
@@ -22,14 +24,8 @@ namespace Ecommerce.Shared.DTOs
     public int Existencias {get; set;}
     public int IdCategoria {get; set;}
     public string? Categoria {get; set;}
-    }
-
-     public class ProductoCreateteDtos
-    {
-    public string? Nombre {get; set;}
-    public decimal Precio {get; set;}
-    public int Existencias {get; set;}
-    public int IdCategoria {get; set;}
+    public byte[]? FotoData { get; set; }
+    public string? FotoMimeType { get; set; }
     }
 
     public class ProductoUpdateDto
@@ -38,5 +34,7 @@ namespace Ecommerce.Shared.DTOs
     public decimal? Precio {get; set;}
     public int? Existencias {get; set;}
     public int? IdCategoria {get; set;}
+    public byte[]? FotoData { get; set; }
+    public string? FotoMimeType { get; set; }
     }
 }

@@ -14,6 +14,10 @@ public class Producto
     public decimal Precio {get; set;}
     public int Existencias {get; set;}
     public int IdCategoria {get; set;}
+    [Column("foto_data")]
+    public byte[]? FotoData {get; set;}
+    [Column("foto_mimetype")]
+    public string? FotoMimeType {get; set;}
 
     [ForeignKey("IdCategoria")]
     public virtual Categoria? Categoria {get; set;}

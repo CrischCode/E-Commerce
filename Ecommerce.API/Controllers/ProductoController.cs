@@ -57,32 +57,17 @@ namespace Ecommerce.API.Controllers
         public async Task<IActionResult> GetByI(int id)
         {
             var producto = await _productoService.GetByIdAsync(id);
-            if (producto == null) return NotFound();
+            return producto == null ? NotFound() : Ok(producto); 
 
-            return Ok(new ProductoReadtDtos
-            {
-                IdProducto = producto.IdProducto,
-                Nombre = producto.Nombre,
-                Precio = producto.Precio,
-                Existencias = producto.Existencias,
-                IdCategoria = producto.IdCategoria
-            });
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ProductoCreateteDtos dto)
+        public async Task<IActionResult> Create(ProductoCreateDtos dto)
         {
-            var producto = new Producto
-            {
-                Nombre = dto.Nombre,
-                Precio = dto.Precio,
-                Existencias = dto.Existencias,
-                IdCategoria = dto.IdCategoria,
-            };
             try
             {
-                var create = await _productoService.CreateAsync(producto);
-                return CreatedAtAction(nameof(GetByI), new { id = create.IdProducto }, create);
+                var result = await _productoService.CreateAsync(dto);
+                return CreatedAtAction(nameof(GetByI), new { id = result.IdProducto }, result);
             }
             catch (KeyNotFoundException ex)
             {
@@ -94,36 +79,14 @@ namespace Ecommerce.API.Controllers
 
         public async Task<IActionResult> Patch(int id, [FromBody] ProductoUpdateDto dto)
         {
-            var producto = await _productoService.GetByIdAsync(id);
-            if (producto == null) return NotFound();
-
-            if (!string.IsNullOrWhiteSpace(dto.Nombre))
-                producto.Nombre = dto.Nombre;
-
-            if (dto.Precio.HasValue)
-                producto.Precio = dto.Precio.Value;
-
-            if (dto.Existencias.HasValue)
-                producto.Existencias = dto.Existencias.Value;
-
-            if (dto.IdCategoria.HasValue)
-            {
-                var categoriaExist = await _productoService.CategoriaExistAsync(dto.IdCategoria.Value);
-                if (!categoriaExist) return BadRequest("La categoria no existe");
-                producto.IdCategoria = dto.IdCategoria.Value;
-            }
-
-            await _productoService.UpdateAsync(producto);
-            return NoContent();
+            var update = await _productoService.UpdateAsync(id, dto);
+            return update ? NoContent(): NotFound();
         }
 
         [HttpDelete("{id:int}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var delete = await _productoService.DeleteAsync(id);
-            if (!delete) return NotFound();
-
-            return NoContent();
+            return await _productoService.DeleteAsync(id) ? NoContent() : NotFound();
         }
 
     }
