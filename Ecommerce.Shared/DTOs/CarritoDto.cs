@@ -8,7 +8,7 @@ namespace Ecommerce.Shared.DTOs
 {
     public class CarritoReadDto
     {
-        public int IdCarrito {get; set;}
+        public int IdCarrito { get; set; }
         public int IdCliente { get; set; }
         public List<CarritoItemDto> Items { get; set; } = new List<CarritoItemDto>();
     }
@@ -23,17 +23,17 @@ namespace Ecommerce.Shared.DTOs
 
     public class AgregarProductoDto
     {
-        public int IdCliente {get; set;}
-        public int IdProducto {get; set;}
-        public int Cantidad {get; set;}
+        public int IdCliente { get; set; }
+        public int IdProducto { get; set; }
+        public int Cantidad { get; set; }
     }
 
     public class CarritoItemDto
     {
-        public int IdProducto {get; set;}
+        public int IdProducto { get; set; }
         public string NombreProducto { get; set; } = string.Empty;
-        public decimal Precio {get; set;}
-        public int Cantidad {get; set;}
+        public decimal Precio { get; set; }
+        public int Cantidad { get; set; }
         public byte[]? FotoData { get; set; }
         public string? FotoMimeType { get; set; }
         public decimal SubTotal => Precio * Cantidad;
@@ -41,7 +41,19 @@ namespace Ecommerce.Shared.DTOs
 
     public class ConfirmarPedidoDto
     {
-        public int IdCliente {get; set;}
-        public int IdMetodoPago {get; set;}
+        public int IdCliente { get; set; }
+        public int IdMetodoPago { get; set; }
+        public string DireccionEnvio { get; set; } = null!;
+        public string CiudadEnvio { get; set; } = null!;
+        public string PaisEnvio { get; set; } = null!;
+        public string CodigoPostalEnvio { get; set; } = null!;
+    }
+
+    public class ClienteGuestDto
+    {
+        public string Nombres { get; set; } = "";
+        public string Apellidos { get; set; } = "";
+        public string Telefono { get; set; } = "";
+        public string Direccion { get; set; } = "";
     }
 }
