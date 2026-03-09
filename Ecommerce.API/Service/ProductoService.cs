@@ -74,6 +74,9 @@ namespace Ecommerce.API.Service
                 Nombre = p.Nombre,
                 Precio = p.Precio,
                 Existencias = p.Existencias,
+                DescripcionCorta = p.DescripcionCorta,
+                DescripcionLarga = p.DescripcionLarga,
+                Especificaciones = p.Especificaciones,
                 IdCategoria = p.IdCategoria,
                 FotoData = p.FotoData,
                 FotoMimeType = p.FotoMimeType
@@ -95,9 +98,12 @@ namespace Ecommerce.API.Service
             //se crea la entidad en la bd
             var productoNuevo = new Producto
             {
-                Nombre = dto.Nombre,
+            Nombre = dto.Nombre,
             Precio = dto.Precio,
             Existencias = dto.Existencias,
+            DescripcionCorta = dto.DescripcionCorta,
+            DescripcionLarga = dto.DescripcionLarga,
+            Especificaciones = dto.Especificaciones,
             IdCategoria = dto.IdCategoria,
             FotoData = dto.FotoData,
             FotoMimeType = dto.FotoMimeType
@@ -127,6 +133,9 @@ namespace Ecommerce.API.Service
         if (dto.Precio.HasValue) producto.Precio = dto.Precio.Value;
         if (dto.Existencias.HasValue) producto.Existencias = dto.Existencias.Value;
         if (dto.IdCategoria.HasValue) producto.IdCategoria = dto.IdCategoria.Value;
+        if (!string.IsNullOrWhiteSpace(dto.DescripcionCorta)) producto.DescripcionCorta = dto.DescripcionCorta;
+        if (!string.IsNullOrWhiteSpace(dto.DescripcionLarga)) producto.DescripcionLarga = dto.DescripcionLarga;
+        if (!string.IsNullOrWhiteSpace(dto.Especificaciones)) producto.Especificaciones = dto.Especificaciones;
         //actualizacion de la imagen
         if (dto.FotoData != null) {
             producto.FotoData = dto.FotoData;

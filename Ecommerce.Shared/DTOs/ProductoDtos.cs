@@ -11,6 +11,9 @@ namespace Ecommerce.Shared.DTOs
     public string? Nombre {get; set;} = null!;
     public decimal Precio {get; set;}
     public int Existencias {get; set;}
+    public string? DescripcionCorta { get; set; }
+    public string? DescripcionLarga { get; set; }
+    public string? Especificaciones { get; set; }
     public int IdCategoria {get; set;} 
     public byte[]? FotoData { get; set; }
     public string? FotoMimeType { get; set; }
@@ -22,6 +25,9 @@ namespace Ecommerce.Shared.DTOs
     public string? Nombre {get; set;} = null!;
     public decimal Precio {get; set;}
     public int Existencias {get; set;}
+    public string? DescripcionCorta { get; set; }
+    public string? DescripcionLarga { get; set; }
+    public string? Especificaciones { get; set; }
     public int IdCategoria {get; set;}
     public string? Categoria {get; set;}
     public byte[]? FotoData { get; set; }
@@ -33,6 +39,9 @@ namespace Ecommerce.Shared.DTOs
     public string? Nombre {get; set;}
     public decimal? Precio {get; set;}
     public int? Existencias {get; set;}
+    public string? DescripcionCorta { get; set; }
+    public string? DescripcionLarga { get; set; }
+    public string? Especificaciones { get; set; }
     public int? IdCategoria {get; set;}
     public byte[]? FotoData { get; set; }
     public string? FotoMimeType { get; set; }

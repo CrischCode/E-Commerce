@@ -13,6 +13,12 @@ public class Producto
     [Column(TypeName = "numeric(18,2)")]
     public decimal Precio {get; set;}
     public int Existencias {get; set;}
+    [MaxLength(500)]
+    public string? DescripcionCorta {get; set;} 
+
+    public string? DescripcionLarga {get; set;} 
+    
+    public string? Especificaciones {get; set;}
     public int IdCategoria {get; set;}
     [Column("foto_data")]
     public byte[]? FotoData {get; set;}
