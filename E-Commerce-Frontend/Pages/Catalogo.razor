@@ -5,107 +5,85 @@
 @inject ICarrito CarritoService
 @inject IJSRuntime JS
 
-<div class="container-fluid p-0 bg-white min-vh-100">
-    @* --- HERO SECTION PROFESIONAL --- *@
-    <div class="ecommerce-hero">
-        <div class="hero-content container text-center text-white">
-            <span class="text-uppercase tracking-widest fw-light mb-2 d-block animate__animated animate__fadeInDown">Innovación en tus manos</span>
-            <h1 class="display-2 fw-bold mb-4 animate__animated animate__fadeInUp">Premium Tech <span class="text-primary-gradient">Store</span></h1>
-            <div class="d-flex justify-content-center gap-3 animate__animated animate__fadeInUp animate__delay-1s">
-                <a href="#productos" class="btn btn-primary-custom px-5 py-3 rounded-pill fw-bold shadow-lg">Ver Colección</a>
+<div class="catalog-bg">
+
+    <!-- HERO MARKETPLACE -->
+    <div class="market-hero">
+        <div class="container hero-content">
+            <div>
+                <span class="hero-badge">MEGA OFERTAS 2026</span>
+                <h1>Compra inteligente<br><span>tecnología al mejor precio</span></h1>
+                <p>Productos originales • Garantía • Envío rápido</p>
             </div>
         </div>
     </div>
 
-    @* --- BUSCADOR FLOTANTE --- *@
-    <div id="productos" class="container search-section">
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="glass-search p-2 shadow-xl">
-                    <div class="row g-0 align-items-center">
-                        <div class="col-md-5 d-flex align-items-center ps-4">
-                            <i class="bi bi-search text-primary me-3"></i>
-                            <input type="text" class="form-control border-0 shadow-none bg-transparent" 
-                                   placeholder="¿Qué estás buscando hoy?" @bind="textoBusqueda" @bind:event="oninput" @onkeyup="Filtrar" />
-                        </div>
-                        <div class="col-md-4 border-start d-flex align-items-center ps-4">
-                            <i class="bi bi-filter text-muted me-3"></i>
-                            <select class="form-select border-0 shadow-none bg-transparent fw-medium" @onchange="OnCategoriaChanged">
-                                <option value="">Todas las Categorías</option>
-                                @foreach (var cat in categorias)
-                                {
-                                    <option value="@cat.Nombre">@cat.Nombre</option>
-                                }
-                            </select>
-                        </div>
-                        <div class="col-md-3 p-1">
-                            <button class="btn btn-dark w-100 rounded-pill py-3 fw-bold" @onclick="Filtrar">
-                                Buscar Ahora
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- BUSCADOR -->
+    <div class="container search-bar">
+        <div class="search-box">
+            <input placeholder="Buscar productos, marcas y más..."
+                   @bind="textoBusqueda"
+                   @bind:event="oninput"
+                   @onkeyup="Filtrar" />
+
+            <select @onchange="OnCategoriaChanged">
+                <option value="">Todas</option>
+                @foreach (var cat in categorias)
+                {
+                    <option value="@cat.Nombre">@cat.Nombre</option>
+                }
+            </select>
+
+            <button @onclick="Filtrar">
+                <i class="bi bi-search"></i>
+            </button>
         </div>
     </div>
 
-    @* --- GRILLA DE PRODUCTOS --- *@
-    <div class="container py-5 mt-5">
+    <!-- PRODUCTOS -->
+    <div class="container py-4">
         @if (productos == null)
         {
             <div class="text-center py-5">
-                <div class="spinner-grow text-primary" role="status"></div>
-                <p class="mt-3 text-muted fw-medium">Preparando catálogo...</p>
+                <div class="spinner-border text-warning"></div>
             </div>
         }
         else
         {
-            <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+            <div class="row g-4">
                 @foreach (var prod in productos)
                 {
-                    <div class="col animate__animated animate__fadeInUp">
-                        <div class="card h-100 product-card border-0">
-                            <div class="product-img-wrapper">
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="product-card">
+
+                            <div class="product-img">
                                 @if (prod.Existencias <= 3 && prod.TieneStock)
                                 {
-                                    <div class="badge-stock">Últimas unidades</div>
+                                    <span class="badge-stock">ÚLTIMOS</span>
                                 }
-                                
-                                @* --- LÓGICA DE IMAGEN BASE64 --- *@
-                                @if (prod.FotoData != null && prod.FotoData.Length > 0)
-                                {
-                                    <img src="data:@prod.FotoMimeType;base64,@Convert.ToBase64String(prod.FotoData)" 
-                                         class="product-img" alt="@prod.Nombre">
-                                }
-                                else
-                                {
-                                    <img src="https://placehold.co/600x600/f8f9fa/adb5bd?text=No+Image" 
-                                         class="product-img" alt="Sin imagen">
-                                }
-                                
-                                <div class="product-overlay">
-                                    <button class="btn btn-light btn-circle shadow-sm" title="Vista Rápida">
-                                        <i class="bi bi-eye"></i>
-                                    </button>
-                                </div>
+
+                                <img src="@GetImage(prod)" />
                             </div>
-                            <div class="card-body px-1 pt-3">
-                                <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <small class="text-uppercase tracking-wider text-muted x-small fw-bold">@prod.CategoriaNombre</small>
-                                    <div class="text-warning small">
-                                        <i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-fill"></i><i class="bi bi-star-half"></i>
-                                    </div>
+
+                            <div class="product-body">
+                                <div class="product-cat">@prod.CategoriaNombre</div>
+
+                                <div class="product-name">
+                                    @prod.Nombre
                                 </div>
-                                <h6 class="product-title mb-2">@prod.Nombre</h6>
-                                <div class="d-flex justify-content-between align-items-center mt-3">
-                                    <span class="fs-5 fw-bold text-dark">@prod.Precio.ToString("C")</span>
-                                    <button class="btn btn-add-cart" 
-                                            @onclick="() => AgregarAlCarrito(prod)" 
-                                            disabled="@(!prod.TieneStock)">
-                                        <i class="bi bi-plus-lg"></i>
-                                    </button>
+
+                                <div class="product-price">
+                                    @prod.Precio.ToString("C")
                                 </div>
+
+                                <button class="btn-add"
+                                        @onclick="() => AgregarAlCarrito(prod)"
+                                        disabled="@(!prod.TieneStock)">
+                                    <i class="bi bi-cart-plus"></i>
+                                    Agregar
+                                </button>
                             </div>
+
                         </div>
                     </div>
                 }
@@ -115,67 +93,170 @@
 </div>
 
 <style>
-    :root {
-        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-    }
+.catalog-bg {
+    background: #f3f4f6;
+    min-height: 100vh;
+}
 
-    .tracking-widest { letter-spacing: 0.2em; }
-    .tracking-wider { letter-spacing: 0.1em; }
-    .x-small { font-size: 0.65rem; }
-    .text-primary-gradient { background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+/* HERO */
+.market-hero {
+    background: linear-gradient(135deg,#ff6a00,#ff8533);
+    color: white;
+    padding: 50px 0 80px 0;
+}
 
-    /* Hero */
-    .ecommerce-hero {
-        height: 80vh;
-        background: radial-gradient(circle at top right, #1e1e24, #000);
-        display: flex;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
-    }
+.hero-content h1 {
+    font-size: 42px;
+    font-weight: 800;
+    line-height: 1.1;
+}
 
-    /* Search Bar */
-    .search-section { margin-top: -50px; }
-    .glass-search { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 100px; border: 1px solid rgba(0,0,0,0.05); }
+.hero-content h1 span {
+    color: #ffe0c2;
+}
 
-    /* Product Cards */
-    .product-card { transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); background: transparent; }
-    .product-img-wrapper { 
-        position: relative; 
-        border-radius: 24px; 
-        overflow: hidden; 
-        background: #fcfcfc; 
-        aspect-ratio: 1/1;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    .product-img { width: 100%; height: 100%; object-fit: contain; padding: 20px; transition: transform 0.6s ease; }
-    .product-card:hover .product-img { transform: scale(1.1); }
-    
-    .product-overlay { 
-        position: absolute; top:0; left:0; width:100%; height:100%; 
-        background: rgba(0,0,0,0.02); display: flex; align-items: center; 
-        justify-content: center; opacity: 0; transition: 0.3s;
-    }
-    .product-card:hover .product-overlay { opacity: 1; }
-    
-    .btn-circle { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-    .product-title { font-weight: 600; font-size: 1rem; color: #1a1a1a; height: 2.4em; overflow: hidden; }
+.hero-content p {
+    opacity: .9;
+    margin-top: 10px;
+}
 
-    .badge-stock {
-        position: absolute; top: 15px; left: 15px; background: #000; color: #fff;
-        font-size: 0.65rem; padding: 5px 12px; border-radius: 50px; font-weight: bold; z-index: 2;
-    }
+.hero-badge {
+    background: rgba(255,255,255,.2);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
 
-    .btn-primary-custom { background: var(--primary-gradient); color: white; border: none; transition: 0.3s; }
-    .btn-primary-custom:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(168, 85, 247, 0.3); color: white; }
+/* SEARCH */
+.search-bar {
+    margin-top: -40px;
+}
 
-    .btn-add-cart { 
-        width: 40px; height: 40px; border-radius: 12px; border: 1px solid #eee;
-        background: #fff; color: #000; transition: 0.3s;
-    }
-    .btn-add-cart:hover { background: #000; color: #fff; border-color: #000; }
+.search-box {
+    background: white;
+    border-radius: 40px;
+    box-shadow: 0 10px 25px rgba(0,0,0,.08);
+    display: flex;
+    padding: 10px;
+    gap: 10px;
+}
+
+.search-box input {
+    border: none;
+    flex: 1;
+    padding: 10px 14px;
+    border-radius: 30px;
+    background: #f3f4f6;
+}
+
+.search-box select {
+    border: none;
+    padding: 10px;
+    border-radius: 30px;
+    background: #f3f4f6;
+    min-width: 140px;
+}
+
+.search-box button {
+    border: none;
+    background: #ff6a00;
+    color: white;
+    width: 45px;
+    border-radius: 50%;
+}
+
+/* CARD */
+.product-card {
+    background: white;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,.06);
+    transition: .25s;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 14px 30px rgba(0,0,0,.12);
+}
+
+/* IMAGE */
+.product-img {
+    height: 190px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fafafa;
+    position: relative;
+}
+
+.product-img img {
+    max-height: 150px;
+    object-fit: contain;
+}
+
+.badge-stock {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #ef4444;
+    color: white;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 700;
+}
+
+/* BODY */
+.product-body {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.product-cat {
+    font-size: 11px;
+    color: #6b7280;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.product-name {
+    font-weight: 600;
+    min-height: 40px;
+    font-size: 14px;
+}
+
+.product-price {
+    color: #ff6a00;
+    font-size: 20px;
+    font-weight: 800;
+    margin: 6px 0 10px;
+}
+
+/* BUTTON */
+.btn-add {
+    margin-top: auto;
+    border: none;
+    background: #ff6a00;
+    color: white;
+    border-radius: 30px;
+    padding: 8px;
+    font-weight: 600;
+    transition: .2s;
+}
+
+.btn-add:hover:not(:disabled) {
+    background: #ff8533;
+}
+
+.btn-add:disabled {
+    background: #d1d5db;
+}
 </style>
 
 @code {
@@ -184,36 +265,53 @@
     private string textoBusqueda = "";
     private string categoriaSeleccionada = "";
 
-    protected override async Task OnInitializedAsync() {
-        try {
-            categorias = await CatalogoService.GetCategoriasAsync();
-            await CargarProductos();
-        } catch(Exception ex) { Console.WriteLine(ex.Message); }
+    protected override async Task OnInitializedAsync()
+    {
+        categorias = await CatalogoService.GetCategoriasAsync();
+        await CargarProductos();
     }
 
-    private async Task CargarProductos() {
+    private async Task CargarProductos()
+    {
         var res = await CatalogoService.GetPagedAsync(1, 12, textoBusqueda, categoriaSeleccionada);
         productos = res?.Data;
     }
 
-    private async Task Filtrar() => await CargarProductos();
-    private async Task OnCategoriaChanged(ChangeEventArgs e) {
+    private async Task Filtrar()
+    {
+        await CargarProductos();
+    }
+
+    private async Task OnCategoriaChanged(ChangeEventArgs e)
+    {
         categoriaSeleccionada = e.Value?.ToString() ?? "";
         await CargarProductos();
     }
 
-    private async Task AgregarAlCarrito(ProductoReadClienteDto p) {
+    private async Task AgregarAlCarrito(ProductoReadClienteDto p)
+    {
         var ok = await CarritoService.AgregarProductoAsync(1, p.IdProducto, 1);
-        if (ok) {
-            await JS.InvokeVoidAsync("Swal.fire", new {
-                title = "Añadido al carrito",
+
+        if (ok)
+        {
+            await JS.InvokeVoidAsync("Swal.fire", new
+            {
+                title = "Añadido",
                 text = p.Nombre,
                 icon = "success",
                 toast = true,
-                position = "bottom-end",
-                timer = 2500,
+                position = "top-end",
+                timer = 1800,
                 showConfirmButton = false
             });
         }
+    }
+
+    private string GetImage(ProductoReadClienteDto prod)
+    {
+        if (prod.FotoData != null && prod.FotoMimeType != null)
+            return $"data:{prod.FotoMimeType};base64,{Convert.ToBase64String(prod.FotoData)}";
+
+        return "https://placehold.co/400x400?text=Producto";
     }
 }

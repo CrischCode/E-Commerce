@@ -120,6 +120,10 @@ namespace Ecommerce.API.Service
                 IdMetodoPago = dto.IdMetodoPago,
                 FechaPedido = DateTime.Now,
                 Estado = "Pendiente",
+                DireccionEnvio = dto.DireccionEnvio,
+                CiudadEnvio = dto.CiudadEnvio,
+                PaisEnvio = dto.PaisEnvio,
+                CodigoPostalEnvio = dto.CodigoPostalEnvio,
                 Total = carrito.Detalles.Sum(d => d.Cantidad * (d.Producto?.Precio ?? 0))
             };
 

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
+using Ecommerce.Shared.DTOs;
 
 namespace Ecommerce.API.Models;
 
@@ -38,6 +39,8 @@ public class DetalleCarrito
     public int IdProducto {get; set;}
     [Column("cantidad")]
     public int Cantidad {get; set;}
+    private int MetodoPago = 0;
+    private ClienteGuestDto clienteGuest  = new();
 
     [ForeignKey("IdCarrito")]
     public virtual Carrito? Carrito {get; set;}

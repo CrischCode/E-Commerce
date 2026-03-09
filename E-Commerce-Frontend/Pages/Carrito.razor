@@ -25,7 +25,6 @@
                     <div class="card mb-3 border-0 shadow-sm rounded-4 overflow-hidden">
                         <div class="card-body p-3">
                             <div class="row align-items-center">
-                                @* --- SECCIÓN DE IMAGEN GARANTIZADA --- *@
                                 <div class="col-3 col-md-2 text-center">
                                     @if (item.FotoData != null && item.FotoData.Length > 0)
                                     {
@@ -68,6 +67,7 @@
         <div class="col-lg-4">
             <div class="card border-0 shadow-lg rounded-4 p-4 sticky-top" style="top: 20px;">
                 <h4 class="fw-bold mb-4">Resumen de compra</h4>
+
                 <div class="d-flex justify-content-between mb-2">
                     <span>Subtotal</span>
                     <span>@miCarrito?.Items.Sum(i => i.SubTotal).ToString("C")</span>
@@ -81,7 +81,31 @@
                     <span class="h5 fw-bold">Total</span>
                     <span class="h5 fw-bold text-primary">@miCarrito?.Items.Sum(i => i.SubTotal).ToString("C")</span>
                 </div>
-                <button class="btn btn-dark w-100 py-3 rounded-pill fw-bold" @onclick="FinalizarCompra" disabled="@(miCarrito == null || !miCarrito.Items.Any())">
+
+                <!-- DIRECCIÓN DE ENVÍO (NUEVO) -->
+                <div class="mb-3">
+                    <label class="form-label">Dirección</label>
+                    <input class="form-control" @bind="direccionEnvio" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Ciudad</label>
+                    <input class="form-control" @bind="ciudadEnvio" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">País</label>
+                    <input class="form-control" @bind="paisEnvio" />
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">Código Postal</label>
+                    <input class="form-control" @bind="codigoPostalEnvio" />
+                </div>
+
+                <button class="btn btn-dark w-100 py-3 rounded-pill fw-bold"
+                        @onclick="FinalizarCompra"
+                        disabled="@(miCarrito == null || !miCarrito.Items.Any())">
                     Finalizar Pedido <i class="bi bi-arrow-right ms-2"></i>
                 </button>
             </div>
@@ -98,29 +122,63 @@
     private CarritoReadDto? miCarrito;
     private int idClienteActual = 1;
 
+    // NUEVOS CAMPOS DIRECCIÓN
+    private string direccionEnvio = "";
+    private string ciudadEnvio = "";
+    private string paisEnvio = "Guatemala";
+    private string codigoPostalEnvio = "";
+
     protected override async Task OnInitializedAsync() => await CargarCarrito();
 
     private async Task CargarCarrito() 
     {
         miCarrito = await CarritoService.GetCarritoByClienteAsync(idClienteActual);
-        StateHasChanged(); // Forzar actualización visual
+        StateHasChanged();
     }
 
-    private async Task ModificarCantidad(CarritoItemDto item, int cambio) {
+    private async Task ModificarCantidad(CarritoItemDto item, int cambio) 
+    {
         var ok = await CarritoService.AgregarProductoAsync(idClienteActual, item.IdProducto, cambio);
         if (ok) await CargarCarrito();
     }
 
-    private async Task Eliminar(int idProducto) {
+    private async Task Eliminar(int idProducto) 
+    {
         var ok = await CarritoService.EliminarProductoAsync(miCarrito!.IdCarrito, idProducto);
         if (ok) await CargarCarrito();
     }
 
-    private async Task FinalizarCompra() {
-        var dto = new ConfirmarPedidoDto { IdCliente = idClienteActual, IdMetodoPago = 1 };
+    private async Task FinalizarCompra() 
+    {
+        if (string.IsNullOrWhiteSpace(direccionEnvio) ||
+            string.IsNullOrWhiteSpace(ciudadEnvio) ||
+            string.IsNullOrWhiteSpace(paisEnvio) ||
+            string.IsNullOrWhiteSpace(codigoPostalEnvio))
+        {
+            await JS.InvokeVoidAsync("Swal.fire", "Datos incompletos", "Ingresa la dirección de envío", "warning");
+            return;
+        }
+
+        var dto = new ConfirmarPedidoDto
+        {
+            IdCliente = idClienteActual,
+            IdMetodoPago = 1,
+            DireccionEnvio = direccionEnvio,
+            CiudadEnvio = ciudadEnvio,
+            PaisEnvio = paisEnvio,
+            CodigoPostalEnvio = codigoPostalEnvio
+        };
+
         var ok = await CarritoService.ProcesarCompraAsync(dto);
-        if (ok) {
+
+        if (ok)
+        {
             await JS.InvokeVoidAsync("Swal.fire", "¡Pedido Exitoso!", "Tu compra se ha procesado correctamente.", "success");
+
+            direccionEnvio = "";
+            ciudadEnvio = "";
+            codigoPostalEnvio = "";
+
             await CargarCarrito();
         }
     }

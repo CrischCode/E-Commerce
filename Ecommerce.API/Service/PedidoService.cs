@@ -248,7 +248,6 @@ namespace Ecommerce.API.Service
         var producto = await _context.Producto.FindAsync(detalle.IdProducto);
         if (producto != null)
         {
-            //Devolvemos el stock
             producto.Existencias += detalle.Cantidad;
             
             _context.MovimientoInventario.Add(new MovimientoInventario
